@@ -1,0 +1,138 @@
+\chap[implementation] Implementation
+
+This chapter describes the main parts of our FIDO2 authenticator implementation.
+
+\_firstnoindent
+{\sbf Main points:}
+
+\begitems
+
+* Written in {\sbf C}.
+
+* Runs on the \ulink[https://www.st.com/en/evaluation-tools/stm3240g-eval.html]{STM3240G-EVAL} board with the \ulink[https://www.st.com/en/microcontrollers-microprocessors/stm32f407ig.html]{STM32F407IGH6} MCU.
+
+* Uses STM32CubeF4 (HAL, LL, and USB Device Library) via STM32CubeMX generator.
+
+* The complete source code is available on GitHub here:\nl
+\url{https://github.com/pokusew/fel-krp-project}
+
+* FIDO2 (specifically CTAP2) implementation in \ulink[https://github.com/pokusew/fel-krp-project/tree/main/fido2]{fido2} dir is based on the \ulink[https://github.com/solokeys/solo1/tree/master/fido2]{SoloKeys Solo 1} project. However, some parts of the original implementation have been rewritten / refactored / modified / fixed, so it could be used with the STM32F4 MCU (which has, for example, a different \ulink[https://docs.google.com/document/d/1w8nlZtAWBM4tpGXUnDnQ9sS5QC9gXJy8L33SD8Nu538/edit#heading=h.ptondx7i5x]{flash memory organization}).
+
+\enditems
+
+\sec Architecture
+
+In this section I describe individual layers (protocol stack) of the firmware that together implement the necessary FIDO2 functionality. The diagram on the right depicts these layers.
+
+
+\secc CTAP2
+
+The core part is the implementation of the CTAP2 protocol. CTAP2 protocol is a high-level transaction-oriented protocol. A CTAP2 transaction consists of a request, followed by a response message. CTAP2 transactions are always initiated by the client. Messages are encoded using the concise binary encoding CBOR.
+
+There are two essential transactions – authenticatorMakeCredential, which is implemented in ctap_make_credential, and authenticatorGetAssertion, which is implemented in ctap_get_assertion. They facilitate the register and authenticate flows as described in the Relying party (RP) section.
+
+
+\secc CTAPHID
+
+Mapping of messages to the underlying USB transport is facilitated by the CTAPHID layer. Request and response messages are divided into individual fragments, known as packets. Packets are the smallest form of protocol data units, which in the case of CTAPHID are mapped into USB HID reports. CTAPHID also implements logical channel multiplexing so that multiple clients (browsers, apps, OS) on the same client device (device) can communicate with the authenticator concurrently.
+
+
+\secc USB
+
+The USB HID and USB layers are implemented using the STM32Cube USB device library and its Custom HID class. It uses the USB_OTG_FS (USB 2.0 Full Speed) MCU peripheral.
+There are two endpoints (IN, OUT) with interrupt transfer (64-byte packet max, poll every 5 millisecond). The descriptors (device, config, interface, endpoints, HID report) are set up according to the CTAPHID specification (11.2.8. HID device implementation).
+The USB HID report descriptor plays a key role in the automatic device discovery. The CTAPHID protocol is designed with the objective of driver-less installation on all major host platforms. Browsers and other clients use the standard USB HID driver included within the OS. The HID Usage Page field within the authenticator’s HID report descriptor is set to the value 0xF1D0, which is registered to the FIDO Alliance (see HID Usage Tables 1.5).
+The following screenshot shows the authenticator in the USB Device Tree Explorer in System Information on macOS 11.
+
+The chosen Vendor ID (VID) and Product ID (VID) come from the pid.codes project.
+pid.codes is a registry of USB PID codes for open source hardware projects. They assign PIDs on any VID they own to any open-source hardware project needing one.
+For the initial version of this project, I used their testing VID/PID 0x1209/0x0001. In the future, when I have a more-production-ready authenticator, I might eventually ask for my own PID.
+
+\secc Persistent Storage
+
+The most complex part is the implementation of state persistence. There are multiple pieces of data that need to be persisted. Namely, it is:
+
+\begitems
+
+* the master key (used for storing non-discoverable credentials, see more info in Credential Storage Modality),
+
+* the PIN (or the information that it is not has not been set yet) for user verification (UV) and invalid PIN attempts counter (note that the PIN is not stored in plaintext, instead it is stored as a salted hash),
+
+* the global signature counter,
+
+* and client-side discoverable credentials (formerly called resident credentials, the abbreviation "rk", which is used in the code, stands for {\sbf r}esident {\sbf k}ey).
+
+\enditems
+
+{\em Note:} This document uses the following notation: 1 KB (kilobyte) = 1024 B (bytes).
+
+As a persistent storage, we used {\sbf a part of the 1024 KB of Flash memory} that is built into the STM32F407IGH6 MCU. By default, it is used for storing the program code (firmware). Because our firmware takes only about the first 104540 B (~ 102 KB), i.e., around 10\% of the total capacity, we can use the rest for our application data.
+
+However, flash memory comes with {\sbf an important limitation} – one can only program (write) flash bits from 1 to 0. In order to write 1 in place of the already written 0 bits, one must {\sbf erase the whole memory sector} (the size of which can be in the range of KBs). This is generic to flash memory technology and is not specific to the STM32.
+
+In case of STM32F407IGH6, its flash memory organization is as follows (also documented in \ulink[https://github.com/pokusew/fel-krp-project/blob/main/Inc/flash.h]{Inc/flash.h}):
+
+A main memory block divided into 12 sectors (with different sizes, numbered 0-11):
+
+\begitems
+
+* "4 sectors of 16 KB: sectors 0-3"
+* "1 sector of 64 KB: sector 4"
+* "7 sectors of 128 KB: sectors 5-11"
+
+\enditems
+
+Our program occupies the sectors 0-4 (102 KB fits into the first 128 KB). So, we are only left with the big 128KB sectors for the application data. {\sbf Their erasure takes a significant amount of time} (seconds). Also, the total possible number of erasures is limited ({\sbf flash memory wear}). Thus, it is not possible to naively rewrite the whole sector when only a few bytes need to be changed (for example, when the global signature counter needs to be incremented).
+
+There are special file systems designed to allow efficient use of such memories. However, for our use case, {\sbf we implemented a simple custom solution, adapted from the Solo 1 project} (where they faced the same challenge, but their MCU’s sectors were only 1 KB big which still allowed for relatively fast erasures).
+
+The implemented algorithms are conceptually types of {\sbf simple wear-leveling algorithms}. With our solution, the need for erasures is greatly reduced. Most of the time, all the changes in the authenticator state can be done without any erasure at all (so it takes no extra time).
+
+Here are the relevant parts of the code that implement the persistence:
+
+\begitems
+
+* flash memory utils in \ulink[]{Inc/flash.h} and \ulink[]{Src/flash.c}
+
+* \ulink[]{Inc/memory_layout.h} that defines the used sector numbers
+
+* \ulink[]{ensure_flash_initialized()} in Src/app.c for initialization of the memory layout upon the very first startup and after memory reset (using the app_delete_data debug command)
+
+* persistence of the \ulink[]{AuthenticatorState} struct (contains the master key + PIN data)
+
+\begitems
+* \ulink[]{authenticator_read_state()}
+* \ulink[]{authenticator_write_state()}
+\enditems
+
+* persistence of the global \ulink[]{signature counter}
+
+\begitems
+
+* \ulink[]{ctap_atomic_count()} in Src/device.c
+
+* Note: A special effort has been made to make the counter atomic. In case the flash write is interrupted (e.g., the authenticator is disconnected from the USB and the power is interrupted), the counter should keep its previous value. This is critical for the correct FIDO2 implementation because the counter must never be decremented.
+
+\enditems
+
+* persistence of the client-discoverable credentials (resident credentials, resident keys)
+
+\begitems \style X
+* \ulink[]{ctap_reset_rk()}
+* \ulink[]{ctap_rk_size()}
+* \ulink[]{ctap_store_rk()}
+* \ulink[]{ctap_delete_rk()}
+* \ulink[]{ctap_load_rk()}
+* \ulink[]{ctap_overwrite_rk()}
+
+This is the only part where the wear-leveling algorithm is not implemented yet.
+Fortunately, it has only a negligible impact, since the ctap_overwrite_rk is only called once when a new client-discoverable credential is being created. This is in contrast with ctap_atomic_count() and authenticator_read_state() that can be invoked even multiple times during a single transaction.
+
+\enditems
+
+\enditems
+
+
+
+
+

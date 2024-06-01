@@ -1,0 +1,54 @@
+\chap[fido2] FIDO2
+
+{\sbf FIDO2} is a set of standards based on {\em asymmetric cryptography} that enables easy, secure, and phishing-resistant authentication. It supports {\em passwordless}, {\em second-factor}, and {\em multi-factor} user experiences with embedded (or bound) authenticators (such as biometrics or PINs) or external (or roaming) authenticators (such as FIDO Security Keys, mobile devices, wearables, etc.).
+
+{\sbf The specifications are:}
+
+\begitems
+
+* \ilink[cite:spec_ctap_2_1]{Client to Authenticator Protocol (CTAP) by FIDO Alliance}
+
+* \ilink[cite:spec_webauthn_level_2]{Web Authentication (WebAuthn) API by World Wide Web Consortium (W3C)}
+
+\enditems
+
+Note: FIDO U2F is a predecessor of FIDO2 that can be used only for two-factor authentication (as a second factor).
+
+
+\sec Functional Description
+
+The basic idea is that the credentials belong to the user and are managed by a WebAuthn/FIDO2 Authenticator, with which the WebAuthn Relying Party interacts through the client platform. Relying Party scripts can (with the user’s consent) request the browser to create a new credential for future use by the Relying Party~\cite[spec_webauthn_level_2].
+
+
+\secc[def_rp] Relying party (RP)
+
+An entity whose application utilizes the WebAuthn API to register and authenticate users, and which stores the public key.
+
+
+\secc[def_authenticator] Authenticator
+
+A cryptographic entity that handles generating and storing keys and performing cryptographic operations.
+
+The private keys never leave the authenticator.
+
+
+\seccc Credential Storage Modality
+
+The keys might be either stored in persistent storage embedded in the authenticator (necessary for client-discoverable/resident credentials that can be used as a first factor), or they might be derived from the credential ID (then the authenticator can support virtually an unlimited number of credentials).
+
+For more information, see 6.2.2. Credential Storage Modality in~\cite[spec_webauthn_level_2].
+
+
+\secc[def_client] Client
+
+An entity that acts as an intermediary between the \ilink[ref:def_rp]{relying party} and the \ilink[ref:def_authenticator]{authenticator} (typically a web browser or a similar application).
+
+
+\secc[def_client_device] Client Device
+
+The hardware device on which the WebAuthn \ilink[ref:def_rp]{Client} runs, for example a smartphone, a laptop computer or a desktop computer, and the operating system running on that hardware.
+
+
+\secc[def_client_platform] Client Platform
+
+A client device and a client together make up a client platform. A single hardware device may be part of multiple distinct client platforms at different times by running different operating systems and/or clients.

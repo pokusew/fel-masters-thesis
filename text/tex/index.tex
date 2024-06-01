@@ -1,0 +1,86 @@
+% CTUstyle3 template
+\input ctustyle3
+
+\worktype [M/EN]
+
+\faculty {F3}
+\department {Department of Computer Science}
+
+\title {FIDO2 USB Security Key}
+\titleCZ {\nl FIDO2 USB bezpečnostní klíč}
+\author {Martin Endler}
+\date {May 2025}
+
+\supervisor {Ing. Jan Sobotka, Ph.D.}
+\studyinfo  {Open Informatics – Cybersecurity}
+\workinfo   {\url{https://github.com/pokusew/fel-masters-thesis}}
+
+% The two-page KOS-generated Assigment goes after the Title Page
+\specification {
+	\vbox to0pt{\vskip-32mm\centerline{\inspic ../../formalities/Thesis_Assignment_Martin_Endler_FIDO2_USB_Security_Key_v5_p1.pdf }\vss}
+	\vfil\break
+	\vbox to0pt{\vskip-32mm\centerline{\inspic ../../formalities/Thesis_Assignment_Martin_Endler_FIDO2_USB_Security_Key_v5_p2.pdf }\vss}
+}
+% After that goes the one-page KOS-generated Declaration PDF
+\declaration {
+	\vbox to0pt{\vskip-32mm\centerline{\inspic ../../formalities/Thesis_Declaration.pdf }\vss}
+}
+
+\abstractEN {
+
+	Passwords as a means of authentication suffer from many problems. To increase security, new technologies and standards have been introduced. FIDO2 is a set of standards that enables easy, secure, and phishing-resistant authentication with passwordless, second-factor, and multi-factor user experiences using embedded authenticators (such as device-embedded biometrics or PINs) or external authenticators (such as FIDO USB security keys). It is supported by major OSs, browsers, websites, and applications.
+
+	The goal of this project is to create a new open-source implementation of an external FIDO2 authenticator from scratch that would be well-documented, thoroughly tested, and production-ready. By focusing on the quality and the documentation, this implementation could help others understand the FIDO2 standards by providing a detailed yet accessible insight into the inner workings of these protocols (which the existing implementations lack). In general, this project has the potential to contribute to the popularization of FIDO2 technology.
+
+}
+\keywordsEN {
+	FIDO2, CTAP2, USB, \nobreak{WebAuthn}, security key, passkeys, authenticator, passwordless authentication, multi-factor authentication, MFA, second-factor authentication, 2FA, USB, asymmetric cryptography, public-key cryptography
+}
+
+\abstractCZ {
+
+	Passwords as a means of authentication suffer from many problems. To increase security, new technologies and standards have been introduced. FIDO2 is a set of standards that enables easy, secure, and phishing-resistant authentication with passwordless, second-factor, and multi-factor user experiences using embedded authenticators (such as device-embedded biometrics or PINs) or external authenticators (such as FIDO USB security keys). It is supported by major OSs, browsers, websites, and applications.
+
+	The goal of this project is to create a new open-source implementation of an external FIDO2 authenticator from scratch that would be well-documented, thoroughly tested, and production-ready. By focusing on the quality and the documentation, this implementation could help others understand the FIDO2 standards by providing a detailed yet accessible insight into the inner workings of these protocols (which the existing implementations lack). In general, this project has the potential to contribute to the popularization of FIDO2 technology.
+
+}
+\keywordsCZ {
+	FIDO2, CTAP2, USB, \nobreak{WebAuthn}, bezpečnostní klíč, passkeys, autentizátor, přihlášení bez hesla, vícefaktorová autentizace, MFA, dvoufaktorová autentizace, 2FA, \nobreak{asymetrická} kryptografie, kryptografie s~veřejným klíčem
+}
+
+\thanks {
+
+	First, I would like to thank my~supervisor Ing.~Jan~\nobreak{Sobotka},~Ph.D.
+	for his guidance, support, and patience. Second, I would like to thank my family and close friends
+	for always supporting me throughout my studies.
+
+}
+
+% link glossary data
+\input glossary
+
+%%%%% <--   % The place for your own macros is here.
+
+%\draft     % Uncomment this if the version of your document is working only.
+%\linespacing=1.7  % uncomment this if you need more spaces between lines
+% Warning: this works only when \draft is activated!
+%\savetoner        % Turns off the lightBlue backround of tables and
+% verbatims, only for \draft version.
+%\blackwhite       % Use this if you need really Black+White thesis.
+%\onesideprinting  % Use this if you really don't use duplex printing.
+
+% make title page, acknowledgment, contents etc.
+\makefront
+
+% contents
+\input 1-introduction
+\input 2-fido2
+\input 3-existing-work
+\input 4-implementation
+\input 7-conclusion
+
+% appendices
+\input appendices
+
+% document end
+\bye
