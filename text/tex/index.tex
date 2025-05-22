@@ -28,24 +28,28 @@
 
 \abstractEN {
 
-	Passwords as a means of authentication suffer from many problems. To increase security, new technologies and standards have been introduced. FIDO2 is a set of standards that enables easy, secure, and phishing-resistant authentication with passwordless, second-factor, and multi-factor user experiences using embedded authenticators (such as device-embedded biometrics or PINs) or external authenticators (such as FIDO USB security keys). It is supported by major OSs, browsers, websites, and applications.
+	FIDO2 is a~set of standards based on asymmetric cryptography that enables easy, secure, and phishing-resistant authentication. The strong support from Google, Microsoft, Apple, and other major technology companies in the FIDO Alliance is driving the adoption of FIDO2 across the industry.
 
-	The goal of this project is to create a new open-source implementation of an external FIDO2 authenticator from scratch that would be well-documented, thoroughly tested, and production-ready. By focusing on the quality and the documentation, this implementation could help others understand the FIDO2 standards by providing a detailed yet accessible insight into the inner workings of these protocols (which the existing implementations lack). In general, this project has the potential to contribute to the popularization of FIDO2 technology.
+	This thesis focuses on creating a~new open-source FIDO2 USB hardware external authenticator. We provide an overview of the relevant technologies and standards, specifically Web Authentication and CTAP2. We also review existing similar projects. Then, we proceed to the actual implementation. We document our decisions and the most important parts. The resulting fully functional CTAP 2.1 compliant implementation is publicly available on GitHub. It utilizes hardware-accelerated cryptography on the STM32H533 MCU, passes FIDO2 conformance tests, and is usable for authentication on real WebAuthn-enabled websites.
+
+	We hope our work will contribute to the popularization and better understanding of the FIDO2 technology.
 
 }
 \keywordsEN {
-	FIDO2, CTAP2, USB, \nobreak{WebAuthn}, security key, passkeys, authenticator, passwordless authentication, multi-factor authentication, MFA, second-factor authentication, 2FA, USB, asymmetric cryptography, public-key cryptography
+	FIDO2, WebAuthn, CTAP, CTAP2, USB, CTAPHID, security key, passkeys, authenticator, passwordless authentication, multi-factor authentication, MFA, second-factor authentication, 2FA, asymmetric cryptography, public key cryptography, Elliptic-curve cryptography, ECC
 }
 
 \abstractCZ {
 
-	Passwords as a means of authentication suffer from many problems. To increase security, new technologies and standards have been introduced. FIDO2 is a set of standards that enables easy, secure, and phishing-resistant authentication with passwordless, second-factor, and multi-factor user experiences using embedded authenticators (such as device-embedded biometrics or PINs) or external authenticators (such as FIDO USB security keys). It is supported by major OSs, browsers, websites, and applications.
+	FIDO2 je sada standardů založených na asymetrické kryptografii, která umožňuje snadnou, bezpečnou a~proti phishingu odolnou autentizaci. Silná podpora ze strany společností Google, Microsoft, Apple a~dalších významných technologických firem v~rámci FIDO \nobreak{Alliance} podporuje adopci FIDO2 v~celém odvětví.
 
-	The goal of this project is to create a new open-source implementation of an external FIDO2 authenticator from scratch that would be well-documented, thoroughly tested, and production-ready. By focusing on the quality and the documentation, this implementation could help others understand the FIDO2 standards by providing a detailed yet accessible insight into the inner workings of these protocols (which the existing implementations lack). In general, this project has the potential to contribute to the popularization of FIDO2 technology.
+	Tato práce se zaměřuje na vytvoření nového open-source FIDO2 USB hardwarového externího autentizátoru. Nejdříve popisuje relevantní technologie a~standardy, zejména Web Authentication a~CTAP2. Také zmiňuje existující podobné projekty. Poté přistupuje k~samotné implementaci. Dokumentuje rozhodnutí a~nejdůležitější části. Výsledná plně funkční implementace splňující CTAP 2.1 specifikaci je veřejně dostupná na GitHubu. Využívá hardwarově akcelerovanou kryptografii na STM32H533, prochází testy shody FIDO2 a~je použitelná pro autentizaci na skutečných webových stránkách s~podporou WebAuthn.
+
+	Doufáme, že naše práce přispěje k~popularizaci a~lepšímu porozumění technologii FIDO2.
 
 }
 \keywordsCZ {
-	FIDO2, CTAP2, USB, \nobreak{WebAuthn}, bezpečnostní klíč, passkeys, autentizátor, přihlášení bez hesla, vícefaktorová autentizace, MFA, dvoufaktorová autentizace, 2FA, \nobreak{asymetrická} kryptografie, kryptografie s~veřejným klíčem
+	FIDO2, WebAuthn, CTAP, CTAP2, USB, CTAPHID, bezpečnostní klíč, passkeys, autentizátor, přihlášení bez hesla, vícefaktorová autentizace, MFA, dvoufaktorová autentizace, 2FA, asymetrická kryptografie, kryptografie s~veřejným klíčem, kryptografie nad eliptickými křivkami, ECC
 }
 
 \thanks {
