@@ -20,6 +20,72 @@ This chapter describes the main parts of our FIDO2 authenticator implementation.
 
 \enditems
 
+
+\sec Goals
+
+
+\sec Maintaining Quality
+
+unit tests, xxxx
+
+\sec Choosing Hardware
+
+\sec USB
+
+TinyUSB, its queue
+
+\sec CTAPHID
+
+\sec CBOR Parsing
+
+TinyCBOR
+
+\sec Arbitrary-length Strings
+
+xxx
+
+
+\sec PIN/UV Auth Protocol
+
+v1, v2
+token state
+authenticating commands
+
+\sec Cryptography
+
+software
+hardware
+RNG, PKA, SHA, AES
+HMAC
+KKDF
+
+
+
+
+\sec CTAP2
+
+\secc AAGUID
+
+state
+\secc Stateful Commands
+
+
+\sec State Persistence
+
+
+\sec Debugging Interface via UART
+
+
+
+
+\sec Trust Zone
+
+
+
+
+
+
+
 \sec Architecture
 
 In this section I describe individual layers (protocol stack) of the firmware that together implement the necessary FIDO2 functionality. The diagram on the right depicts these layers.

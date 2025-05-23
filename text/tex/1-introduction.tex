@@ -4,10 +4,43 @@ Passwords as a means of authentication suffer from many problems. More than 80\%
 
 However, the standard MFA mechanisms, including one-time codes delivered via insecure channels (such as SMS, voice call, or email), TOTPs (e.g., Google Authenticator), and proprietary push notification-based systems, do not provide sufficient security. Not only are they all still susceptible to phishing attacks, but they also greatly hinder the user experience.
 
-To solve this problem, the FIDO Alliance was launched in 2013. It develops and promotes strong authentication standards that “help reduce the world’s over-reliance on passwords”~\cite[fido_alliance_overview].
+To solve this problem, the FIDO Alliance was launched in 2013. It develops and promotes strong authentication standards that “help reduce the world's over-reliance on passwords”~\cite[fido_alliance_overview].
 
 Its latest set of standards, jointly developed with the W3C (World Wide Web Consortium), is called {\sbf FIDO2}. It is based on asymmetric cryptography, and it enables {\sbf easy, secure, and phishing-resistant authentication} for online services (primarily on the web, but it can be used in native applications as well). It supports {\em passwordless}, {\em second-factor}, and {\em multi-factor} user experiences with {\em platform authenticators} (such as Apple ID with Face ID or Touch ID, Windows Hello, and Google Password Manager on Android) or external {\em (roaming) authenticators} (such as {\sbf FIDO2 security keys}). All~major OSs, browsers, and a growing number of websites and applications support FIDO2~\cite[mdn_webauthn_browser_compatibility, can_i_use_webauthn, passkeys_dev_device_support].
 
 Among the FIDO Alliance's 250 members are all the major technological companies~\cite[fido_alliance_members]. Google (one of the FIDO founding members), Microsoft, and Apple have become vocal advocates for passwordless authentication based on passkeys (the end-user-centric term for FIDO2 credentials) since 2022 when they announced their public commitment to expand support of FIDO2~\cite[fido_alliance_news_2022_05_05].
 
 With the ever-increasing adoption of FIDO2 across the industry~\cite[intro_verizon_report_2020], it is useful to understand~how this technology works and what its benefits are. In order to do that, we decided to~{\sbf create a new open-source implementation of an external (roaming) FIDO2 authenticator from scratch}.
+
+\sec[strcuture] Structure
+
+This thesis is structured as follows:
+\nl First, in Section~\ref[objective], we define {\sbf the objective} of the thesis.
+\nl Second, in Chapter~\ref[fido2], we establish the necessary theoretical foundation by {\sbf describing FIDO2} in detail. We also review existing projects related to our goal in Chapter~\ref[existing-work].
+\nl Next, in Chapter~\ref[implementation], we describe {\sbf the actual implementation}, which represents the main contribution of this thesis. Then, we {\sbf test and evaluate} our implementation in Chapter~\ref[evaluation].
+\nl Finally, in Chapter~\ref[conclusion], we conclude the thesis by summarizing {\sbf the achieved results}.
+
+
+\sec[objective] Thesis Objective
+
+The objective of this work is to create a new {\sbf open-source implementation of a FIDO2 USB hardware-based security key} that is fully functional, well-documented and thoroughly tested and offers a~detailed yet accessible insight into the inner workings of FIDO2, which is something that existing open-source implementations currently lack.
+
+In terms of WebAuthn (which we explain in~\ref[fido2]), we aim to create a roaming authenticator with cross-platform attachment using CTAP 2.1 over USB 2.0 (CTAPHID) as the communication protocol, that supports user verification using PIN (CTAP2 ClientPIN), and is capable of storing passkeys (client-side discoverable credentials).
+
+The end result should be similar to proprietary commercial products such as those from Yubico~\ref[img_yubico] or GoTrust~\ref[img_gotrust]. Nevertheless, our work focuses on the software implementation (optimized for use on resource-constrained hardware platforms), not on the physical product or the hardware design. As a~part of our work, we will select a suitable MCU-based hardware platform for our implementation.
+
+We want to create an implementation that is self-contained, with a minimum number of dependencies. By implementing all the key parts from scratch, we can develop a deep understanding of FIDO2/WebAuthn.
+
+Finally, by focusing on the quality and the documentation, this implementation could help others understand the FIDO2 standards, and, in general, contribute to the popularization of FIDO2 technology.
+
+\midinsert
+\clabel[img_yubico]{Security Key NFC by Yubico}
+\picheight=45mm \cinspic ../images/security-key-nfc-by-yubico.png
+\caption/f Security Key NFC by Yubico, one of the most typical FIDO2 USB/NFC security keys (or more precisely, cross-platform roaming authenticators).
+\endinsert
+
+\midinsert
+\clabel[img_gotrust]{GoTrust Idem Key}
+\picheight=45mm \cinspic ../images/gotrust-idem-key.png
+\caption/f GoTrust Idem Key, a FIDO2 USB/NFC security key with FIDO Authenticator Certification Level 2 (L2) ~\cite[fido_cert_levels].
+\endinsert
