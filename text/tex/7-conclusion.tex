@@ -4,21 +4,13 @@ In this project, {\sbf we successfully implemented} a working FIDO2 USB hardware
 
 First, we outlined the goal of the project and its motivation. Then, we established the necessary theoretical foundation by describing the Web Authentication and CTAP2 standards, which are together known as FIDO2. We also reviewed existing projects related to our goal.
 
-% Then, we moved on to
-Then, we proceeded to the actual implementation, which represents the main contribution of this project.
-We documented our decisions and the most important parts of the implementation. All code is versioned using Git and is publicly {\sbf available online on GitHub}\urlnote{https://github.com/pokusew/fel-krp-project}. The repository includes build and run instructions. There is also a {\sbf CI/CD pipeline} to ensure software quality. Our authenticator supports both client-discoverable credentials and an unlimited number of non-discoverable credentials. Thanks to the full support of client-discoverable credentials and user verification (UV) using PIN, it can be used as a first factor (passkey).
+Then, we proceeded to the actual implementation, which represents the main contribution of~this project. We documented our decisions and the most important parts of the implementation. All code is versioned using Git and is publicly {\sbf available online on GitHub\urlnote{https://github.com/pokusew/lionkey}}. The repository includes build and run instructions. There is also a~CI/CD pipeline to ensure software quality. Our authenticator supports both client-discoverable credentials and an unlimited number of non-discoverable credentials. Thanks to the full support of client-discoverable credentials and user verification (UV) using PIN, it can be used as a first factor (passkey).
 
-Finally, {\sbf we tested} our authenticator {\sbf with real websites} with different configurations (1st factor vs 2nd factor). In all cases, {\sbf it worked great}, including with Google Account and GitHub.
+Finally, {\sbf we tested} our authenticator {\sbf with real websites} with different configurations (1st~factor vs 2nd factor). In all cases, {\sbf it worked great}, including with Google Account and GitHub.
 
 However, the authenticator is not production-ready. Even though we were able to make it work (with the help of the Solo 1 codebase), there are a lot of details and edge cases that are not correctly handled. The whole FIDO2/WebAuthn specification is very complex and a proper implementation would take much more time.
 
 
 \sec Future Work
 
-There are a few more steps needed to achieve the ultimate goal of creating a new FIDO2-compliant implementation from scratch that would be thoroughly tested and production-ready.
-
-Currently, our implementation uses a part of the Solo 1 project (the CTAP2 layer) that we need to replace with our own implementation.
-
-Furthermore, we would like to use test-driven development and ensure there is sufficient test coverage. As of now, we have set up a CI/CD pipeline (so at least we can test that project builds correctly), but there are no unit/integration/e2e tests yet.
-
-Ultimately, we would like to attempt to pass the FIDO Authenticator Level 1 (L1) certification\urlnote{https://fidoalliance.org/certification/authenticator-certification-levels/authenticator-level-1/}.
+TODO
