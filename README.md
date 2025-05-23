@@ -15,9 +15,9 @@ can be found in the [formalities](./formalities) directory.
 
 <!-- links references -->
 
-[pokusew/lionkey]: https://github.com/pokusew/fel-krp-project
+[pokusew/lionkey]: https://github.com/pokusew/lionkey
 
-[FIDO2_USB_Security_Key.pdf]: https://github.com/pokusew/fel-masters-project/raw/main/text/FIDO2_USB_Security_Key.pdf
+[FIDO2_USB_Security_Key.pdf]: https://github.com/pokusew/fel-masters-thesis/raw/main/text/FIDO2_USB_Security_Key.pdf
 
 [CTU FEE]: https://fel.cvut.cz/en/
 
