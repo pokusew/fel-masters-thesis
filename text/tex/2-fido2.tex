@@ -45,21 +45,29 @@ FIDO2 is a~set of related specifications, jointly developed by the FIDO Alliance
 
 \_vfill
 
-\sec[functional_description] Functional Description
+\sec[pka] Public Key Cryptography
+
 
 FIDO2 relies on public key cryptography (also called asymmetric cryptography)~\cite[spec_webauthn_level_2].
 
-{\em Public key cryptography} uses the concept of a~key pair. Each key pair consists of a {\sbf private key} (which must be kept secret) and a~corresponding {\sbf public key} (which can be openly distributed without compromising security). The public and private keys are mathematically related. They are generated with cryptographic algorithms based on mathematical problems termed one-way functions~\cite[wiki_pka]. It is not possible to calculate the private key from the public key. One of the most common public key cryptosystems is RSA that relies on the difficulty of factoring the product of two large prime numbers~\cite[wiki_rsa].
+{\em Public key cryptography} uses the concept of a~key pair. Each key pair consists of a~{\sbf private key} (which must be kept secret) and a~corresponding {\sbf public key} (which can be openly distributed without compromising security). The public and private keys are mathematically related. They are generated with cryptographic algorithms based on mathematical problems termed {\em one-way functions}~\cite[wiki_pka]. It is not possible to calculate the private key from the public key. One of the most common public key cryptosystems is RSA that relies on the difficulty of factoring the product of two large prime numbers~\cite[wiki_rsa]. Another widely used public key cryptosystem is Elliptic Curve Cryptography (ECC), which is based the algebraic structure of elliptic curves over finite fields, specifically the difficulty of the Elliptic Curve Discrete Logarithm Problem (ECDLP)~\cite[wiki_ecc].
 
-The core idea is that FIDO2/WebAuthn allows servers (i.e., websites, referred to as Relying Parties) to register and authenticate users using public key cryptography.
+\sec[func_desc] Functional Description
+
+The core idea is that FIDO2/WebAuthn allows servers (i.e., websites, referred to as {\sbf Relying Parties}, {\sbf RP}) to register and authenticate users using public key cryptography.
+
+\midinsert
+\clabel[webuathn_flow_auth_simple]{Simplified WebAuthn authentication flow}
+\picw=15cm \cinspic ../images/simple-schema.pdf
+\caption/f Simplified WebAuthn authentication flow. The credentials belong to the user and are managed by an authenticator, with which the Relying Party interacts through the client platform.
+\endinsert
 
 Instead of a~password, a~private-public keypair (known as a {\sbf credential}) is created for a~website during registration. While the {\sbf private key} is stored securely on the user's device (inside the {\sbf authenticator}) and it never leaves it, the {\sbf public key} and an authenticator-generated credential ID are sent to the server where they are stored.
 
-Then, during {\sbf authentication}, the RP's server then uses that {\sbf public key} to verify the user's identity by verifying the user's possession of the corresponding private key. More specifically, the server sends the credential ID and a~random data called a~challenge to the client (the user's browser). The client bounds the challenge to the RP ID by hashing the challenge together with the RP ID and producing clientDataHash. The client passes RP ID, credential ID, and clientDataHash to the user's authenticator. The authenticator looks up the {\sbf private key} by the RP ID and credential ID and it signs the concatenation of authenticatorData and clientDataHash (encrypts the corresponding hash, signature = encrypted hash of the data) using the {\sbf private key}. It passes this signature back to the server via the client. The server uses the {\sbf public key} to verify the signature. It decrypts the hash and compares it with the expected hash. If they match, it proves that the user is in possession of the {\sbf private key} and, therefore, can be authenticated.
+Then, during {\sbf authentication}, the RP's server then uses that {\sbf public key} to verify the user's identity by verifying the user's possession of the corresponding private key. More specifically, the server sends the credential ID and a~random data called a~challenge to the client (the user's browser). The client bounds the challenge to the RP ID by hashing the challenge together with the RP ID and producing clientDataHash. The client passes RP ID, credential ID, and clientDataHash to the user's authenticator. The authenticator looks up the {\sbf private key} by the RP ID and credential ID and it signs the concatenation of authenticatorData (which contains info about the authenticator) and clientDataHash using the {\sbf private key}. It passes this signature back to the server via the client. The server checks that all values in the clientDataJSON and in the authenticatorData have the expected values (especially RP ID). Then it computes the expected hash using the clientDataJSON and authenticatorData. Finally, it uses the {\sbf public key} to verify the signature.
 
-The diagram below illustrates the simplified authentication flow described above:
+The exact signature algorithm depends on the supported algorithms by the RP and by the authenticator. WebAuthn does not list the specific algorithms, instead it refers to the IANA CBOR Object Signing and Encryption (COSE) Algorithms Registry\urlnote{https://www.iana.org/assignments/cose/cose.xhtml\#algorithms}. One of the common algorithm identifiers is "-7", which stands for Elliptic Curve Digital Signature Algorithm (ECDSA) on the P-256 curve (also called secp256r1 or prime256v1) with SHA-256 as the hashing function.
 
-The simplified authentication flow. To further clarify, the credentials belong to the user and are managed by an authenticator, with which the Relying Party interacts through the client platform.
 
 \sec Key Benefits
 
@@ -110,12 +118,9 @@ Based on the description in the previous section, we can clearly see some of the
 \enditems
 
 
-
-
-
 \sec Terminology
 
-In the previous sections, we briefly introduced the key parties involved in FIDO2/WebAuthn – {\em the relying party (RP), the client, and the authenticator}. In this section, we provide more detailed information about them and their behavior. We also define additional related terms to aid in our explanations.
+In the previous sections, we briefly introduced the key parties involved in FIDO2 – {\em the relying party (RP), the client, and the authenticator}. In this section, we provide more detailed information about them and their behavior. We also define additional related terms to aid in our explanations.
 
 
 \secc[def_rp] Relying party (RP)
@@ -124,52 +129,76 @@ In the previous sections, we briefly introduced the key parties involved in FIDO
 
 \secc[def_client] Client
 
-An entity (typically a web browser or a similar application) that acts as an intermediary between the relying party and the authenticator~\cite[spec_webauthn_level_2].
+An entity (typically a~web browser or a~similar application) that acts as an intermediary between the relying party and the authenticator~\cite[spec_webauthn_level_2].
 
 
 \secc[def_client_device] Client Device
 
-“The hardware device on which the client runs, for example a smartphone, a laptop computer or a desktop computer, and the operating system running on that hardware.”~\cite[spec_webauthn_level_2]
+“The hardware device on which the client runs, for example a~smartphone, a~laptop computer or a~desktop computer, and the operating system running on that hardware.”~\cite[spec_webauthn_level_2]
 
 
 \secc[def_client_platform] Client Platform
 
-“A client device and a client together make up a client platform. A single hardware device may be part of multiple distinct client platforms at different times by running different operating systems and/or clients.”~\cite[spec_webauthn_level_2]
+“A client device and a~client together make up a~client platform. A single hardware device may be part of multiple distinct client platforms at different times by running different operating systems and/or clients.”~\cite[spec_webauthn_level_2]
 
 
 \secc[def_authenticator] Authenticator
 
-“A cryptographic entity, existing in hardware or software, that can register a user with a given Relying Party” (i.e., generate and store a public-private key pair with appropriate metadata) and “later assert possession of the private key during authentication”.~\cite[spec_webauthn_level_2] The private keys never leave the authenticator.
+“A cryptographic entity, existing in hardware or software, that can register a~user with a~given Relying Party” (i.e., generate and store a~public-private key pair with appropriate metadata) and “later assert possession of the private key during authentication”.~\cite[spec_webauthn_level_2] The private keys never leave the authenticator.
 
 The authenticators that are part of the client device are referred to as {\em platform authenticators} (such as Apple ID with Face ID or Touch ID, Windows Hello, and Google Password Manager on Android), while those that are reachable via cross-platform transport protocols (USB, NFC, Bluetooth) are referred to as {\em roaming authenticators} (such as {\sbf FIDO2 USB security keys}).
 
+\secc[def_aaguid] AAGUID
 
-\secc Credential Storage Modality
+Authenticator Attestation Globally Unique Identifier. A 128-bit identifier indicating the type (e.g.\ make and model) of the authenticator, chosen (randomly generated) by its manufacturer.
 
-Authenticators (such as FIDO2 hardware security keys) might have a limited storage capacity. Until now, we have assumed that {\sbf the private keys} must be stored in the authenticator. In fact, the WebAuthn allows {\sbf two different storage strategies}:
+\secc[def_credential] Credential
+
+A~public-private key pair that is used for authentication.
+It is bound to an RP ID.
+A~credential is identified by a {\sbf Credential ID}, which is an opaque probabilistically-unique byte string generated by authenticator that can be up to 1023 bytes long.
+It is associated with a~user account, which is identified by a {\sbf user handle} ("user.id"). A user handle is an opaque byte sequence with a~maximum size of 64 bytes, generated by the RP and stored together with the credential by the authenticator. Optionally, the user account information within the crednetial can also contain "name" and "displayName", which are both arbitrary-length strings.
+Every credential is either discoverable (also called client-side discoverable) or non-discoverable. RP controls which type of credential will be created during registration by passing an appropriate option to the WebAuthn API. Discoverable credentials are also called {\sbf“passkeys”}~\cite[spec_webauthn_level_3].
+RP pass credential IDs during registration (in the excludeList) to prevent users from creating multiple credentials for the same user account on a~single authenticator.
+RP can also pass credential IDs during authentication (in the allowList) to explicitly allow authentication (i.e., generating an assertion, resp. a~signature) only using those credentials. When a~credential is non-discoverable, its Credential ID must be passed to authenticator during each authentication call.
+
+
+\secc[def_uv] User Verification
+
+“The process by which an authenticator locally authorizes the invocation of an operation. Various authorization gesture modalities are possible, for example, a touch plus pin code, password entry, or biometric recognition (e.g., presenting a fingerprint). The intent is to distinguish individual users..”~\cite[spec_webauthn_level_2].
+
+The “user verification does not give the RP a concrete identification of the user, but when two or more ceremonies with user verification have been done, it expresses that it was the same user that performed all of them. The same user might not always be the same natural person, however, if multiple natural persons share access to the same authenticator.”~\cite[spec_webauthn_level_2].
+
+
+\secc[def_up] User Presence
+
+“A test of user presence is a simple form of authorization gesture and technical process where a user interacts with an authenticator by (typically) simply touching it.”~\cite[spec_webauthn_level_2].
+
+
+\secc[credential_storage_modality] Credential Storage Modality
+
+Authenticators (such as FIDO2 hardware security keys) might have a~limited storage capacity. Until now, we have assumed that {\sbf the private keys} must be stored in the authenticator. In fact, the WebAuthn allows {\sbf two different storage strategies}:
 
 \begitems \style n
 
-* The private key is stored {\sbf in persistent storage} embedded in the authenticator. This strategy is necessary for {\sbf client-discoverable credentials (also called passkeys)} that can be used as a first factor.
+* The private key is stored {\sbf in persistent storage} embedded in the authenticator. This strategy is necessary for {\sbf discoverable credentials} (also called {\sbf clisent-side discoverable credentials} or {\sbf passkeys}) that can be used as a~first factor.
 
 * The private key is {\sbf stored within the credential ID}. Specifically, the private key is encrypted {\sbf (wrapped)} such that only the authenticator can decrypt (i.e., unwrap) it. The resulting ciphertext is {\sbf the credential ID}.
 
 Typically, the authenticator uses symmetric AES encryption, where the symmetric encrypt/decrypt key (sometimes called master key) is securely stored in the authenticator and never leaves it. Therefore, this strategy, if correctly implemented, is as secure as the first one.
 
-Note that this strategy is possible because {\sbf the RP passes the credential ID} to the authenticator {\sbf during authentication}. This is the case for the non-discoverable credentials. Therefore, the authenticator does not need to store any information about such a credential in its persistent storage. This way it can support virtually an unlimited number of credentials. However, this strategy {\sbf cannot} be used for client-discoverable credentials, where the RP does {\sbf not} pass the credential ID to the authenticator and instead the authenticator must be able to list all existing credentials for that RP.
+Note that this strategy is possible because {\sbf the RP passes the credential ID} to the authenticator {\sbf during authentication}. This is the case for the non-discoverable credentials. Therefore, the authenticator does not need to store any information about such a~credential in its persistent storage. This way it can support virtually an unlimited number of credentials. However, this strategy {\sbf cannot} be used for discoverable credentials, where the RP does {\sbf not} pass the credential ID to the authenticator and instead the authenticator must be able to list all existing credentials for that RP.
 
 \enditems
 
-Note that the authenticators {\sbf might support both strategies} and use different storage strategies for different credentials (typically only use the persistent storage when it is strictly necessary, i.e., for {\em client-discoverable} credentials).
+Note that the authenticators {\sbf might support both strategies} and use different storage strategies for different credentials (typically only use the persistent storage when it is strictly necessary, i.e., for {\em discoverable} credentials).
 
 For more information, see 6.2.2. Credential Storage Modality in~\cite[spec_webauthn_level_2].
-
-Also note that there is the term {\sbf“passkey”}, which is the end-user-centric term for a FIDO2/WebAuthn {\sbf client-discoverable credential}.
 
 
 \sec Ceremonies
 
-In this section, we build on the information provided in the \ilink[ref:functional_description]{Functional Description} section, and we cover the {\sbf registration} and {\sbf authentication} flows in more detail. These flows are referred to as “ceremonies” by the WebAuthn specification because they extend the concept of a~computer {\em communication protocol} with human-computer interactions.
+In this section, we build on the information provided in the \ilink[ref:solo]{Functional Description} section, and we cover the {\sbf registration} and {\sbf authentication} flows in more detail. These flows are referred to as “ceremonies” by the WebAuthn specification because they extend the concept of a~computer {\em communication protocol} with human-computer interactions.
 
 In the following descriptions, we assume {\sbf a~standard web application} that runs client-side code to invoke the WebAuthn JavaScript APIs in the browser and to communicate with its server, which validates responses and stores/retrieves details about registered credentials (their IDs and public keys). In this case, the browser represents the \nobreak{WebAuthn} client. Note that WebAuthn can also be used in native applications where platform-specific vendor-provided APIs are used in place of the WebAuthn JavaScript APIs. On Android, these are FIDO2 API for Android\urlnote{https://developers.google.com/identity/fido/android/native-apps} and/or Credential Manager API\urlnote{https://developers.google.com/identity/android-credential-manager}. iOS provides similar APIs\urlnote{https://developer.apple.com/documentation/authenticationservices/public-private-key-authentication}.
 
@@ -181,7 +210,7 @@ During registration, a~new credential is created on an authenticator and registe
 The following diagram~\ref[webuathn_flow_reg] from depicts the registration flow:
 
 \midinsert
-\clabel[webuathn_flow_reg]{WebAuthn registration flow}
+\clabel[webuathn_flow_reg]{WebAuthn Registration Flow}
 \picw=12cm \cinspic ../images/webauthn-flow-reg.pdf
 \caption/f The WebAuthn registration flow.
 \endinsert
@@ -206,28 +235,90 @@ The user visits a~website, for example, "example.com", which serves up a~script.
 
 \enditems
 
-\midinsert
-\clabel[webuathn_flow_auth]{WebAuthn authnentication flow}
-\picw=12cm \cinspic ../images/webauthn-flow-auth.pdf
-\caption/f The WebAuthn authnentication flow.
-\endinsert
+\_vfil
 
 
 \secc Authentication
 
-This is the ceremony when a~user with an already registered credential visits a~website and wants to authenticate using the credential. During authentication, the server then uses that {\sbf public key} to verify the user's identity by verifying the user's possession of the private key.
+This is the ceremony when a~user with an already registered credential visits a~website and wants to authenticate using the credential (authenticatorGetAssertion request). During authentication, the server then uses that {\sbf public key} to verify the user's identity by verifying the user's possession of the private key by verifying the authenticator-generated signature (called assertion).
 
 
-Since we have already described the authentication in sufficient detail in the Functional Description section, we omit the detailed description here and ask the reader to refer to the corresponding description there.
+Since we have already described the authentication in sufficient detail in the \ilink[ref:func_desc]{Functional Description} section, we omit the detailed description here and ask the reader to refer to the corresponding description there.
 
-\sec USB
-\sec USB HID
-\sec CTAPHID
+\midinsert
+\clabel[webuathn_flow_auth]{WebAuthn Authnentication Flow}
+\picw=12cm \cinspic ../images/webauthn-flow-auth.pdf
+\caption/f The WebAuthn authentication flow.
+\endinsert
 
-\sec CBOR
 
-\sec Passkeys
+\sec CTAP2
 
-\sec ECC
+WebAuthn defines the key concepts and principles of the whole FIDO2 functionality. However, it does not define the communication protocol between the client and the authenticator. It introduces an abstract functional model for a~WebAuthn Authenticator. This model defines the necessary observable behavior. Specifically, it defines the authenticator data\textit{ }structure, signature formats (attestations and assertions), and the authenticatorMakeCredential, authenticatorGetAssertion, and authenticatorCancel operations using an abstract notion of connection and session between the client and the authenticator.
 
-\sec XXX
+CTAP2 represents a~concrete instantiation of this model. It defines the actual communication protocol and its bindings to various transport protocols. The specification defines multiple abstraction levels.
+
+
+\secc Authenticator API
+
+At the highest level of abstraction, CTAP2 defines a~conceptual API consisting of operations (also called commands or requests). Each command accepts input parameters and returns either a~response with data on success or an error code. The returned response depends on the parameters and the authenticator’s internal state. However, there are also special commands called stateful commands, which do not accept any parameters but require an additional command state to be maintained. “Each such command uses and updates a~state that is initialized by a~corresponding state initializing command.”~\cite[spec_ctap_2_1]
+
+Here is a list of all mandatory CTAP 2.1 commands with their command codes. Note that some of the commands have also subcommands (technically, the subcommand code and the subcommand parameters are parameters if the parent command).
+
+\begitems
+
+* {\sbf authenticatorGetInfo (0x04)} – “Using this method, clients can request that the authenticator report a list of its supported protocol versions and extensions, its AAGUID, and other aspects of its overall capabilities. Clients should use this information to tailor their command parameters choices.”~\cite[spec_ctap_2_1]
+
+* {\sbf authenticatorClientPIN (0x06)} – See \ilink[ref:pin_protcol]{PIN/UV Auth Protocol}
+
+* {\sbf authenticatorMakeCredential (0x01)} – “request generation of a new credential in the authenticator”~\cite[spec_ctap_2_1]
+
+* {\sbf authenticatorGetAssertion (0x02)} – “request cryptographic proof of user authentication as well as user consent to a given transaction, using a previously generated credential that is bound to the authenticator and RP ID”~\cite[spec_ctap_2_1]
+
+* {\sbf authenticatorGetNextAssertion (0x08)} – (stateful command ) “The client calls this method when the authenticatorGetAssertion response contains the numberOfCredentials member and the number of credentials exceeds 1.”~\cite[spec_ctap_2_1]
+
+* {\sbf authenticatorCredentialManagement (0x0A)} – “This command is used by clients to manage discoverable credentials on the authenticator.”~\cite[spec_ctap_2_1]
+
+* {\sbf authenticatorSelection (0x0B)} – “This command allows the client to let a user select a certain authenticator by asking for user presence.”~\cite[spec_ctap_2_1]
+
+* {\sbf authenticatorReset (0x07)} – “Invalidates all generated credentials, erases all discoverable credentials, resets PIN”~\cite[spec_ctap_2_1]
+
+\enditems
+
+\_vfil
+
+\secc[pin_protcol] PIN/UV Auth Protocol
+
+CTAP2 offers two different ways to perform user verification:
+
+\begitems
+
+* {\sbf ClientPIN} – The entry of the PIN is mediated by the client. The user enters the PIN into the client’s UI (e.g., a~browser dialog), and the client sends it encrypted to the authenticator. ClientPIN is useful when the authenticator does not have its input UI (e.g., it is a~security key without any display or keypad).
+
+* {\sbf Built-in User Verification} – User verification is performed entirely within the authentication boundary, e.g., the authenticator has a~fingerprint sensor or a~secure built-in input UI (e.g., built-in keypad).
+
+\enditems
+
+The PIN/UV auth protocol (aka pinUvAuthProtocol) handles both ways of user verification. The ClientPINs are encrypted when sent to an authenticator and exchanged for a~pinUvAuthToken to authenticate subsequent commands. “Authenticators supporting built-in user verification methods can provide a~pinUvAuthToken (again, to authenticate subsequent commands) upon performing the built-in user verification. The pinUvAuthToken ris a~randomly-generated, opaque bytestring that is large enough to be effectively unguessable.”~\cite[spec_ctap_2_1] Both PIN and pinUvAuthToken are never sent in plaintext. Instead, they are encrypted using a~shared secret that is obtained by performing an ECDH key agreement. However, the plain ECDH key agreement (as is any unauthenticated DH key agreement) is vulnerable to MitM attacks (e.g., an active attacker with the ability to modify USB packets). Those weaknesses are studied in TODO.
+
+The authenticatorClientPIN (0x06) command, resp. its eight subcommands, implement the necessary operations to get the number of remaining PIN/UV retries, obtain a~shared secret (using ECDH), set a~PIN, change existing PIN, exchange PIN for a~pinUvAuthToken, and perform built-in user-verification to get a~pinUvAuthToken.
+
+Furthermore, PIN/UV Auth Protocol provides an internal API, which is used by the rest of the Authenticator API commands to validate the pinUvAuthParam. The pinUvAuthParam is used to convey the user verification status while also authenticating the parameters of commands such as authenticatorMakeCredential, authenticatorGetAssertion, and authenticatorCredentialManagement. The client uses the previously obtained pinUvAuthToken to compute an HMAC over all or some of the command parameters. The authenticator verifies the HMAC by computing it from the relevant received parameters and the current pinUvAuthToken (if in use). A successful verification indicates that a~user verification performed in the recent authneticatorClientPIN command can now be used to perform the requested operation (makeCredential, getAssertion, or credentialManagement).
+
+
+\secc Message Encoding
+
+CTAP2 encodes all command parameters and response data using Concise Binary Object Representation (CBOR). This encoding was chosen because many transports (for example, NFC) “are bandwidth-constrained, and serialization formats such as JSON are too heavy-weight for such environments”~\cite[spec_ctap_2_1]. Furthermore, CTAP2 introduces the CTAP2 canonical CBOR encoding form, which further restricts the CBOR format with additional encoding rules (such as NO indefinite-length arrays and maps, integers MUST be encoded as small as possible, etc.).
+
+Each operation in the conceptual Authenticator API has a~command code (1 byte) assigned. The request message is constructed by prepending the command code to the CBOR-encoded parameters. Analogically, the response message is constructed by prepending the error code (0 for success) to the CBOR-encoded response data. Since error responses do not have any data, they are only one byte (the error code).
+
+
+\secc CTAPHID
+
+One of the defined transport protocols for CTAP2 is USB, resp. USB HID. The protocol is called CTAPHID, and it implements logical channel multiplexing so that multiple clients (browsers, apps, OS) on the same client device can communicate with the authenticator concurrently. Next, it introduced the concept of a~transaction. The CTAPHID transaction consists of a~CTAPHID request followed by a~CTAPHID response message. The transactions are always initiated by clients. Request and response messages are divided into individual fragments, known as packets. Packets are directly mapped onto USB HID reports. The fragmentation and channel multiplexing add some overhead to the raw CTAP2 messages (11\% – 8\% based on the payload length when the HID report size is 64 bytes).
+
+The USB HID report descriptor plays a~key role in the automatic \textit{device discovery}. The CTAPHID protocol is designed with the objective of driver-less installation on all major host platforms. Browsers and other clients use the standard USB HID driver included within the OS. The HID \textit{Usage Page} field within the authenticator’s HID report descriptor is set to the value "0xF1D0", which is registered to the FIDO Alliance (see HID Usage Tables 1.6).
+
+
+% \sec USB
+% \sec USB HID
