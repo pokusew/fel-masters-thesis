@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.0.8">
   <diagram name="Page-1" id="gtEx4x2OVCmOV5k88S3V">
-    <mxGraphModel dx="446" dy="253" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2920" pageHeight="1200" math="0" shadow="0">
+    <mxGraphModel dx="1096" dy="622" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2920" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -64,8 +64,8 @@
         <mxCell id="qSNYdpLK8OEsZtSAGU9_-24" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;RP ID,&lt;br&gt;clientDataHash,&lt;br&gt;(allow list)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="500" y="385" width="70" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="qSNYdpLK8OEsZtSAGU9_-25" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;authenticatorData,&lt;br&gt;signature,&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 10px;&quot;&gt;(credential ID, user info)&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="740" y="385" width="110" height="30" as="geometry" />
+        <mxCell id="qSNYdpLK8OEsZtSAGU9_-25" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;authenticatorData,&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;font-size: 10px;&quot;&gt;credential ID,&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-size: 10px;&quot;&gt;signature,&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 10px;&quot;&gt;(user info)&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="745" y="385" width="110" height="30" as="geometry" />
         </mxCell>
         <mxCell id="qSNYdpLK8OEsZtSAGU9_-26" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;user verification,&lt;br&gt;create assertion&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="615" y="500" width="90" height="30" as="geometry" />
