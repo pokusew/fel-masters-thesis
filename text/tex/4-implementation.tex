@@ -2,6 +2,8 @@
 
 This chapter describes the main parts of our FIDO2 authenticator implementation.
 
+TODO
+
 \_firstnoindent
 {\sbf Main points:}
 
@@ -9,36 +11,71 @@ This chapter describes the main parts of our FIDO2 authenticator implementation.
 
 * Written in {\sbf C}.
 
-* Runs on the \ulink[https://www.st.com/en/evaluation-tools/stm3240g-eval.html]{STM3240G-EVAL} board with the \ulink[https://www.st.com/en/microcontrollers-microprocessors/stm32f407ig.html]{STM32F407IGH6} MCU.
+* Runs on the \ulink[https://www.st.com/en/evaluation-tools/nucleo-h533re.html]{NUCLEO-H533RE} board with the \ulink[https://www.st.com/en/microcontrollers-microprocessors/stm32h533re.html]{STM32H533RET6} MCU.
 
-* Uses STM32CubeF4 (HAL, LL, and USB Device Library) via STM32CubeMX generator.
+* Uses STM32CubeH5 (HAL, LL) via STM32CubeMX generator.
 
 * The complete source code is available on GitHub here:\nl
-\url{https://github.com/pokusew/fel-krp-project}
-
-* FIDO2 (specifically CTAP2) implementation in \ulink[https://github.com/pokusew/fel-krp-project/tree/main/fido2]{fido2} dir is based on the \ulink[https://github.com/solokeys/solo1/tree/master/fido2]{SoloKeys Solo 1} project. However, some parts of the original implementation have been rewritten / refactored / modified / fixed, so it could be used with the STM32F4 MCU (which has, for example, a different \ulink[https://docs.google.com/document/d/1w8nlZtAWBM4tpGXUnDnQ9sS5QC9gXJy8L33SD8Nu538/edit#heading=h.ptondx7i5x]{flash memory organization}).
+\url{https://github.com/pokusew/lionkey}
 
 \enditems
 
 
 \sec Goals
 
+TODO
 
 \sec Maintaining Quality
 
+TODO
+
 unit tests, xxxx
+
+\midinsert
+\clabel[img_ci_cd]{CI/CD Setup}
+\picw=144mm \cinspic ../images/ci-cd-Screenshot-2025-05-23-at-17.57.46.png
+\caption/f A recent run of our CI/CD pipeline.
+\endinsert
+
+\midinsert
+\clabel[img_ctaphid_test]{CTAPHID Test Suite}
+\picw=144mm \cinspic ../images/test_ctaphid-Screenshot-2025-05-23-at-18.49.24.png
+\caption/f The CTAPHID test suite. 100\% lines coverage (not visible in the screenshot).
+\endinsert
 
 \sec Choosing Hardware
 
+TODO
+
+
 \sec USB
 
-TinyUSB, its queue
+The USB HID and USB layers are implemented using the TinyUSB library.
+There are two endpoints (IN, OUT) with interrupt transfer (64-byte packet max, poll every 5 millisecond). The descriptors (device, config, interface, endpoints, HID report) are set up according to the CTAPHID specification (11.2.8. HID device implementation).
+
+TODO: TinyUSB, its queue
+
+TODO: sending queue
+
+\midinsert
+\clabel[img_lionkey_usb]{LionKey in macOS USB Device Tree Explorer}
+\picw=144mm \cinspic ../images/usb-Screenshot-2025-05-19-at-0.41.52.png
+\caption/f The following screenshot shows our authenticator in the USB Device Tree Explorer in System Information on macOS 11.
+
+The chosen Vendor ID (VID) and Product ID (VID) come from the pid.codes project.
+pid.codes is a registry of USB PID codes for open source hardware projects. They assign PIDs on any VID they own to any open-source hardware project needing one.
+For the initial version of this thesis, we used their testing VID/PID 0x1209/0x0001. In the future, we might eventually ask for our own PID.
+
+\endinsert
+
 
 \sec CTAPHID
+
 
 \sec CBOR Parsing
 
 TinyCBOR
+
 
 \sec Arbitrary-length Strings
 
@@ -51,6 +88,7 @@ v1, v2
 token state
 authenticating commands
 
+
 \sec Cryptography
 
 software
@@ -61,12 +99,14 @@ KKDF
 
 
 
-
 \sec CTAP2
+
 
 \secc AAGUID
 
 state
+
+
 \secc Stateful Commands
 
 
@@ -74,7 +114,6 @@ state
 
 
 \sec Debugging Interface via UART
-
 
 
 
@@ -116,17 +155,18 @@ For the initial version of this project, I used their testing VID/PID 0x1209/0x0
 
 \secc Persistent Storage
 
-The most complex part is the implementation of state persistence. There are multiple pieces of data that need to be persisted. Namely, it is:
+
+State persistence. There are multiple pieces of data that need to be persisted. Namely, it is:
 
 \begitems
 
 * the master key (used for storing non-discoverable credentials, see more info in Credential Storage Modality),
 
-* the PIN (or the information that it is not has not been set yet) for user verification (UV) and invalid PIN attempts counter (note that the PIN is not stored in plaintext, instead it is stored as a salted hash),
+* the PIN and its code point length (or the information that it is not has not been set yet) for user verification (UV) and invalid PIN attempts counter (note that the PIN is not stored in plaintext, instead only a hash stored),
 
 * the global signature counter,
 
-* and client-side discoverable credentials (formerly called resident credentials, the abbreviation "rk", which is used in the code, stands for {\sbf r}esident {\sbf k}ey).
+* and client-side discoverable credentials.
 
 \enditems
 
