@@ -363,6 +363,7 @@
 \_def\.prepbox#1{\_setbox0=\_vsplit #1to0pt \_relax}
 
 \_def\.thankspage{
+	\_insertoutline{\_mtext{thanks}}
 	\_hrule height0pt \_vskip0pt plus 1filll
 	\_line{
 		\.bf\_thefontsize[19]
@@ -373,7 +374,6 @@
 		\.sethsizethanks
 		\_vtop to\.frontht{\_hrule width\_hsize height0pt \_firstnoindent\_the\thanks \_vfil}
 	}
-	\_insertoutline{\_mtext{thanks}}
 }
 \_addto\makefront{%
    \_footline={\_hss\.ssr\_thefontsize[11]%
