@@ -314,9 +314,10 @@
 
 %%% Page Two
 
-% \_def\.twosidepagetwo{\_null\_vskip0pt plus1fil {\_parindent=0pt \_the\pagetwo\_endgraf}}
-% \_def\.onesidepagetwo{\_if&\_the\pagetwo&\_else\.twosidepagetwo\_fi}
-% \_let\.printpagetwo=\.twosidepagetwo
+\_def\.twosidepagetwo{\_null\_vskip0pt plus1fil {\_parindent=0pt \_the\pagetwo\_endgraf}}
+\_def\.onesidepagetwo{\_if&\_the\pagetwo&\_else\.twosidepagetwo\_fi}
+\_let\.printpagetwo=\.twosidepagetwo
+
 % \_addto\makefront{\.printpagetwo \_endgraf\_break}
 
 %%% Specification page
@@ -380,6 +381,7 @@
    \.thankspage \_vfil\_break
 }
 
+\_def\.tocdotfill{\_leaders\_hbox to.4em{\_hss.\_hss}\_hskip 1em plus1fill\_relax}
 
 %%% Abstract page
 
