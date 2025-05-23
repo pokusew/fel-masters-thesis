@@ -1,18 +1,17 @@
 \chap[conclusion] Conclusion
 
-In this project, {\sbf we successfully implemented} a working FIDO2 USB hardware external authenticator (also called FIDO2 USB security key).
+In this thesis, {\sbf we successfully implemented} a fully functional FIDO2 USB hardware external authenticator (also called FIDO2 USB security key).
 
-First, we outlined the goal of the project and its motivation. Then, we established the necessary theoretical foundation by describing the Web Authentication and CTAP2 standards, which are together known as FIDO2. We also reviewed existing projects related to our goal.
+First, we outlined the objective of our work and its motivation. Then, we established the necessary theoretical foundation by describing the Web Authentication and CTAP2 standards, which are together known as FIDO2. We also reviewed existing projects related to our goal.
 
-Then, we proceeded to the actual implementation, which represents the main contribution of~this project. We documented our decisions and the most important parts of the implementation. All code is versioned using Git and is publicly {\sbf available online on GitHub\urlnote{https://github.com/pokusew/lionkey}}. The repository includes build and run instructions. There is also a~CI/CD pipeline to ensure software quality. Our authenticator supports both client-discoverable credentials and an unlimited number of non-discoverable credentials. Thanks to the full support of client-discoverable credentials and user verification (UV) using PIN, it can be used as a first factor (passkey).
+Then, we proceeded to the actual implementation, which represents the main contribution of~this thesis. We documented our decisions and the most important parts of the implementation. All code is versioned using Git and is publicly {\sbf available online on GitHub\urlnote{https://github.com/pokusew/lionkey}}. The repository includes build and run instructions. We employed software development best practices, including unit testing and CI/CD pipeline.
 
-Finally, {\sbf we tested} our authenticator {\sbf with real websites} with different configurations (1st~factor vs 2nd factor). In all cases, {\sbf it worked great}, including with Google Account and GitHub.
+Finally, {\sbf we tested} our authenticator {\sbf with real websites} with different configurations. In all cases, {\sbf it worked great}, including with Google Account and GitHub.
+Furthermore, we tested our authenticator using the official FIDO Conformance Tools testing. Apart from four little details, which we plan to fix, we passed the entire CTAP 2.1 test suite, demonstrating the quality of our work.
 
-However, the authenticator is not production-ready. Even though we were able to make it work (with the help of the Solo 1 codebase), there are a lot of details and edge cases that are not correctly handled. The whole FIDO2/WebAuthn specification is very complex and a proper implementation would take much more time.
+To support adoption of our implementation by people from all over the world, we gave our implementation a name – LionKey – and we designed a logo. We also purchased the domain "lionkey.dev" with the aim to launch a website with more detailed documentation.
 
-
-\sec Future Work
-
-trust zone
-
-NFC
+\midinsert
+\picheight=45mm \cinspic ../images/lionkey-logo.pdf
+\caption/f The LionKey logo.
+\endinsert

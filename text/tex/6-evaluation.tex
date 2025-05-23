@@ -1,9 +1,52 @@
-\chap[evaluation] Results Evaluation
+\chap[evaluation] Results and Evaluation
 
+\sec LionKey
+
+To support adoption of our implementation by people from all over the world, we gave our implementation a name – LionKey – and we designed a logo. We also purchased the domain "lionkey.dev" (and "lion-key.dev", "lionkey.cz", "lion-key.cz") with the aim to launch a website with more detailed documentation.
+
+\midinsert
+\clabel[img_lionkey]{LionKey Logo}
+\picheight=45mm \cinspic ../images/lionkey-logo.pdf
+\caption/f The LionKey logo.
+\endinsert
+
+
+\sec Key Features of LionKey
+
+In terms of WebAuthn, LionKey is a roaming authenticator with cross-platform attachment using CTAP 2.1 over USB 2.0 (CTAPHID) as the communication protocol, supporting user verification using PIN (CTAP2 ClientPIN), and capable of storing passkeys (client-side discoverable credentials).
+
+\begitems
+
+* Fully compliant implementation of CTAP 2.1.
+
+\begitems
+* Implements all mandatory features.
+* Written in {\sbf C}.
+* No dynamic memory allocations.
+* Designed for use in resource-constrained environments.
+* MCU independent, easily portable, can be used as a library (see the core dir).
+* {\sbf Just a single external dependency} (TinyCBOR).
+
+\enditems
+
+* Runs on the \ulink[https://www.st.com/en/evaluation-tools/nucleo-h533re.html]{NUCLEO-H533RE} board with the \ulink[https://www.st.com/en/microcontrollers-microprocessors/stm32h533re.html]{STM32H533RET6} MCU.
+
+* Uses STM32CubeH5 (HAL, LL) via STM32CubeMX generator.
+
+* Hardware-accelerated cryptography on STM32H533 (using the RNG, PKA, AES, SHA peripherals).
+
+* Uses TinyUSB for the USB and USB HID implementation.
+
+* The complete source code and additional documentation is available on GitHub:\nl
+\url{https://github.com/pokusew/lionkey}
+
+\enditems
 
 \sec FIDO Conformance Tools
 
-our automation server
+The FIDO Alliance provides a testing tool to verify the conformance of a CTAP2 implementation. This tool is not public and it is only provided upon request. Upon our request, we were granted the access. This allowed us to further verify our implementation. Apart from 4 unfinished little details, our implementation is fully with CTAP 2.1. Once we fix those 4 failing test, we can apply for a FIDO Certification L1 Level.
+
+We would like to also mention, that we implemented a test automation server (in the "tools" dir of the repository), which allows an automated conformance testing using the FIDO Conformance Tools app.
 
 \midinsert
 \clabel[img_lionkey_conformance]{LionKey FIDO Conformance Tools Results}
@@ -11,7 +54,7 @@ our automation server
 \caption/f The screenshot of the FIDO Conformance Tools v1.7.25 application after finishing the complte CTAP 2.1 test suite. The total duration was a little over 11 minutes. Only 5 test cases failed out of the total 166. Out of that, 4 test cases are related to the incomplete hmac-secret implementation, while 1 test case seems to be a possible regression in the testing tool itself, which we plan to investigate.
 \endinsert
 
-\secc Authenticator Metadata Statement
+\secc authenticatorGetInfo Snapshot
 
 \begtt
 {
@@ -49,13 +92,13 @@ our automation server
 \endtt
 
 
-\sec Use on Real WebAuthn-enabled websites
+\sec Use on Real WebAuthn-enabled Websites
 
-Google Accounts
-
-GitHub
+We tested our security key with real WebAuthn-enabled websites. In all cases it worked flawlessly. In particular, we verified that it can be used for authentication on Google and GitHub. This confirms the quality of our implementation.
 
 \secc CTU FEE
+
+At CTU FEE, WebAuthn (passkeys) authentication has been recently implemented. Of course, we tested LionKey with that as well. It worked perfectly. Both the full registration and authentication flows are depicted in the following screenshots.
 
 \midinsert
 \clabel[img_ctu_fee_flow_reg]{LionKey WebAuthn Registration on auth.fel.cvut.cz}
@@ -69,22 +112,3 @@ GitHub
 \picw=144mm \cinspic ../images/fel-flow-auth.png
 \caption/f The full WebAuthn flow of a using LionKey with passkeys for authentication on auth.fel.cvut.cz.
 \endinsert
-
-
-
-\sec LionKey
-
-name, logo, domain (secure emails), website with planned documentation
-
-
-
-
-\midinsert
-\clabel[img_lionkey]{LionKey Logo}
-\picheight=45mm \cinspic ../images/lionkey-logo.pdf
-\caption/f The LionKey logo.
-\endinsert
-
-
-
-

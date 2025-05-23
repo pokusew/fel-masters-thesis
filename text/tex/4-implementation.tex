@@ -1,40 +1,52 @@
 \chap[implementation] Implementation
 
 This chapter describes the main parts of our FIDO2 authenticator implementation.
-
-TODO
-
+\_nobreak\_medskip
 \_firstnoindent
-{\sbf Main points:}
-
-\begitems
-
-* Written in {\sbf C}.
-
-* Runs on the \ulink[https://www.st.com/en/evaluation-tools/nucleo-h533re.html]{NUCLEO-H533RE} board with the \ulink[https://www.st.com/en/microcontrollers-microprocessors/stm32h533re.html]{STM32H533RET6} MCU.
-
-* Uses STM32CubeH5 (HAL, LL) via STM32CubeMX generator.
-
-* The complete source code is available on GitHub here:\nl
+The complete source code and additional documentation is available on GitHub:\nl
 \url{https://github.com/pokusew/lionkey}
-
-\enditems
 
 
 \sec Goals
 
-TODO
+\begitems
+
+* self-contained implementation, with {\sbf a minimum number of dependencies}
+
+* understandable, clear implementation of the standard
+
+* hardware-independent core, making the whole project easily portable
+
+* OS-independent, capable of running as a bare-metal application on the MCU
+
+* testable
+
+* hardware-accelerated cryptography
+
+\enditems
+
+
+\sec Decisions
+
+We decided to write our implementation in {\sbf C}, which is a very popular language for embedded development. It allows easy access to the underlying hardware (peripheral registers). We did consider using a more high-level such as Rust, but we wanted to focus primarily on the CTAP2 standard implementation, rather than learning a new language. Moreover, there is already a high-quality CTAP2 implementation in Rust within the \ilink[ref:opensk]{OpenSK} project.
+
+In our implementation, we avoided the use of dynamic memory allocations. All memory is allocated statically or on the stack. We also avoided the use of global variables. All functions only modify the state that they are given. For some parts of the implementation, we also adopted object-oriented techniques to improve testability and enable more flexibility.
+
 
 \sec Maintaining Quality
 
-TODO
+Implementing any larger software product requires rigorous quality assurance practices to ensure security, reliability, and maintainability.
 
-unit tests, xxxx
+We implemented unit tests that allow testing the core of the implementation directly on the host system without the need for the hardware. We tracked code coverage and strived to write better tests. We also configured sanitizers (AddressSanitizer, UndefinedBehaviorSanitizer) to help prevent additional class of possible bugs.
+
+We also set up CI/CD pipeline on GitHub Actions.
+
+Additionally, we relied on the static checks (Clang-Tidy and CLion's advanced static code and flow analyzers). Some of those could be integrated into the CI/CD pipeline as well.
 
 \midinsert
 \clabel[img_ci_cd]{CI/CD Setup}
 \picw=144mm \cinspic ../images/ci-cd-Screenshot-2025-05-23-at-17.57.46.png
-\caption/f A recent run of our CI/CD pipeline.
+\caption/f A recent run of our CI/CD pipeline in GitHub Actions.
 \endinsert
 
 \midinsert
@@ -45,21 +57,51 @@ unit tests, xxxx
 
 \sec Choosing Hardware
 
-TODO
+We sought a hardware platform that would meet the needs of our implementation while being accessible and usable by the builder community worldwide. Therefore, we established the following criteria:
+
+\begitems
+* Available and affordable development kits (boards) with integrated hardware debugger and programmer.
+* Freely available and high-quality documentation (Reference Manual, Programming Manual, etc.). No NDA is needed.
+* No legacy or deprecated MCUs. Only active products.
+* USB 2.0 FS peripheral.
+* Single-core 32-bit MCU, such as the Arm Cortex-M line.
+* Reasonable amount of RAM and flash memory.
+* Hardware-accelerated cryptography (at least ECC on the P-256 curve, AES, SHA-256, True Random Number Generator).
+* Nice-to-have: A form factor close to the physical dimensions of a security key.
+\enditems
+
+We also came across an interesting presentation from Victor Lomne (NinjaLab) about the hardware used in commercial FIDO(2) security keys~\cite[ninjalab_fido_hw_overview]. For example, Yubico uses NXP and Infineon in its products.
+
+After thoroughly reviewing the available hardware options, we identified two candidates: Nordic Semiconductor nRF52840 and STM32H533.
+
+\ilink[ref:opensk]{OpenSK}, the open-source implementation for security keys written in Rust, has chosen Nordic Semiconductor nRF52840 as its reference hardware target. nRF52840 is a SoC with a 64 MHz Cortex-M4 CPU (ARMv7-M architecture) with FPU, 1 MB Flash, 256 KB RAM, multiprotocol radio support (including Bluetooth), USB 2.0, NFC-A, and Arm TrustZone CryptoCell 310 security subsystem. There are two development boards available: nRF52840 DK (48.10 USD) and nRF52840 Dongle (10.40 USD). The nRF52840 Dongle immediately caught our attention because its form factor almost perfectly corresponds to a standard Yubico-like security key. Thus, we bought samples and evaluated them.
+
+We did not like the quality of the documentation and supporting software libraries compared to STMicroelectronics products, so {\sbf we decided to focus our efforts on our second choice, the STM32H533 MCU on the NUCLEO-H533RE (15.95 USD) development board instead}.
+
+STM32H533 features an Arm Cortex-M33 CPU (ARMv8-M architecture) with TrustZone, FPU, frequency up to 250 MHz, 512 KB of embedded flash memory with ECC, two banks read-while-write, 48-KB per bank with high-cycling capability (100 K cycles) for data flash, 272 Kbytes of SRAM (80-KB SRAM2 with ECC), USB 2.0 FS and hardware-cryptography peripherals (PKA (Public Key Accelerator) with support for ECC P-256, AES, HASH, RNG). Those specs are a good fit for our use case.
+
+\midinsert
+\clabel[img_nrf52840]{nRF52840 Dongle}
+\picheight=4cm \cinspic ../images/nRF52840-Dongle-rev2-prod.png
+\caption/f nRF52840 Dongle
+\endinsert
+
+\midinsert
+\clabel[img_nucleo_h533re]{NUCLEO-H533RE}
+\picheight=6cm \cinspic ../images/NUCLEO-H533RE.png
+\caption/f NUCLEO-H533RE
+\endinsert
 
 
 \sec USB
 
-The USB HID and USB layers are implemented using the TinyUSB library.
+The USB HID and USB layers are implemented using the TinyUSB library, which support the STM32H533's USB peripheral.
+
 There are two endpoints (IN, OUT) with interrupt transfer (64-byte packet max, poll every 5 millisecond). The descriptors (device, config, interface, endpoints, HID report) are set up according to the CTAPHID specification (11.2.8. HID device implementation).
-
-TODO: TinyUSB, its queue
-
-TODO: sending queue
 
 \midinsert
 \clabel[img_lionkey_usb]{LionKey in macOS USB Device Tree Explorer}
-\picw=144mm \cinspic ../images/usb-Screenshot-2025-05-19-at-0.41.52.png
+\picw=120mm \cinspic ../images/usb-Screenshot-2025-05-19-at-0.41.52.png
 \caption/f The following screenshot shows our authenticator in the USB Device Tree Explorer in System Information on macOS 11.
 
 The chosen Vendor ID (VID) and Product ID (VID) come from the pid.codes project.
@@ -69,176 +111,51 @@ For the initial version of this thesis, we used their testing VID/PID 0x1209/0x0
 \endinsert
 
 
-\sec CTAPHID
-
-
 \sec CBOR Parsing
 
-TinyCBOR
+We use TinyCBOR for CBOR parsing.
 
 
 \sec Arbitrary-length Strings
 
-xxx
+One challenging aspect of a CTAP2 implementation is the need to support strings of arbitrary length. We implemented an efficient zero-copy solution based on the TinyCBOR's string chunks API. When the strings need to be truncated for storage, the credentials storage submodule takes care of that. When an RP ID gets truncated, we fall back to use its SHA-256 for comparisons.
 
 
 \sec PIN/UV Auth Protocol
 
-v1, v2
-token state
-authenticating commands
+CTAP2 defines two versions of the PIN/UV Auth Protocol. We implemented both of them very elegantly, using OOP techniques.
 
 
 \sec Cryptography
 
-software
-hardware
-RNG, PKA, SHA, AES
-HMAC
-KKDF
+Our CTAP2 implementation requires an implementation of ECDSA and ECDH on the P-256 curve, AES-256 in CBC mode, SHA-256, HMAC~\cite[rfc5869_hdkf], and HKDF~\cite[rfc5869_hmac].
 
+We developed custom generic implementations of HMAC and HKDF from scratch. They can work with any underlying hash algorithm implementation (ether software-based or hardware-based).
 
+In order to enable testability without the need for special hardware, we first implemented Random Number Generation (allowing custom seed testing predictability), ECC, AES, and SHA-256 using software third-party software libraries optimized for use in embedded devices but compatible with standard processor architectures as well. This way we got a baseline that ran on both the host and the target hardware.
 
-\sec CTAP2
-
-
-\secc AAGUID
-
-state
-
-
-\secc Stateful Commands
-
-
-\sec State Persistence
+Then, we implemented the same set of functions (again using OOP) using the STM32H533 cryptography peripherals RNG, PKA, SHA, AES. The ability to compare the results between the software- and hardware-based implementation were crucial to debug various tricky issues.
 
 
 \sec Debugging Interface via UART
 
+In order to allow easy debugging (and development of the USB communication stack), we implemented a simple bidirectional debugging interface using the UART peripheral. We wrote a simple write syscall implementation so that the printf statements (wrapped in custom "debug"/"info"/"error\_log" macros) could work as expected. The handling of the incoming debug commands is done in the app main loop here.
 
-
-\sec Trust Zone
-
-
-
-
-
-
-
-\sec Architecture
-
-In this section I describe individual layers (protocol stack) of the firmware that together implement the necessary FIDO2 functionality. The diagram on the right depicts these layers.
-
-
-\secc CTAP2
-
-The core part is the implementation of the CTAP2 protocol. CTAP2 protocol is a high-level transaction-oriented protocol. A CTAP2 transaction consists of a request, followed by a response message. CTAP2 transactions are always initiated by the client. Messages are encoded using the concise binary encoding CBOR.
-
-There are two essential transactions – authenticatorMakeCredential, which is implemented in ctap_make_credential, and authenticatorGetAssertion, which is implemented in ctap_get_assertion. They facilitate the register and authenticate flows as described in the Relying party (RP) section.
-
-
-\secc CTAPHID
-
-Mapping of messages to the underlying USB transport is facilitated by the CTAPHID layer. Request and response messages are divided into individual fragments, known as packets. Packets are the smallest form of protocol data units, which in the case of CTAPHID are mapped into USB HID reports. CTAPHID also implements logical channel multiplexing so that multiple clients (browsers, apps, OS) on the same client device (device) can communicate with the authenticator concurrently.
-
-
-\secc USB
-
-The USB HID and USB layers are implemented using the STM32Cube USB device library and its Custom HID class. It uses the USB_OTG_FS (USB 2.0 Full Speed) MCU peripheral.
-There are two endpoints (IN, OUT) with interrupt transfer (64-byte packet max, poll every 5 millisecond). The descriptors (device, config, interface, endpoints, HID report) are set up according to the CTAPHID specification (11.2.8. HID device implementation).
-The USB HID report descriptor plays a key role in the automatic device discovery. The CTAPHID protocol is designed with the objective of driver-less installation on all major host platforms. Browsers and other clients use the standard USB HID driver included within the OS. The HID Usage Page field within the authenticator’s HID report descriptor is set to the value 0xF1D0, which is registered to the FIDO Alliance (see HID Usage Tables 1.5).
-The following screenshot shows the authenticator in the USB Device Tree Explorer in System Information on macOS 11.
-
-The chosen Vendor ID (VID) and Product ID (VID) come from the pid.codes project.
-pid.codes is a registry of USB PID codes for open source hardware projects. They assign PIDs on any VID they own to any open-source hardware project needing one.
-For the initial version of this project, I used their testing VID/PID 0x1209/0x0001. In the future, when I have a more-production-ready authenticator, I might eventually ask for my own PID.
 
 \secc Persistent Storage
 
-
-State persistence. There are multiple pieces of data that need to be persisted. Namely, it is:
+There are multiple pieces of data that need to be persisted. Namely, it is:
 
 \begitems
 
-* the master key (used for storing non-discoverable credentials, see more info in Credential Storage Modality),
+* the master key (used for storing non-discoverable credentials),
 
 * the PIN and its code point length (or the information that it is not has not been set yet) for user verification (UV) and invalid PIN attempts counter (note that the PIN is not stored in plaintext, instead only a hash stored),
 
 * the global signature counter,
 
-* and client-side discoverable credentials.
+* and client-side discoverable credentials (passkeys).
 
 \enditems
 
-{\em Note:} This document uses the following notation: 1 KB (kilobyte) = 1024 B (bytes).
-
-As a persistent storage, we used {\sbf a part of the 1024 KB of Flash memory} that is built into the STM32F407IGH6 MCU. By default, it is used for storing the program code (firmware). Because our firmware takes only about the first 104540 B (~ 102 KB), i.e., around 10\% of the total capacity, we can use the rest for our application data.
-
-However, flash memory comes with {\sbf an important limitation} – one can only program (write) flash bits from 1 to 0. In order to write 1 in place of the already written 0 bits, one must {\sbf erase the whole memory sector} (the size of which can be in the range of KBs). This is generic to flash memory technology and is not specific to the STM32.
-
-In case of STM32F407IGH6, its flash memory organization is as follows (also documented in \ulink[https://github.com/pokusew/fel-krp-project/blob/main/Inc/flash.h]{Inc/flash.h}):
-
-A main memory block divided into 12 sectors (with different sizes, numbered 0-11):
-
-\begitems
-
-* "4 sectors of 16 KB: sectors 0-3"
-* "1 sector of 64 KB: sector 4"
-* "7 sectors of 128 KB: sectors 5-11"
-
-\enditems
-
-Our program occupies the sectors 0-4 (102 KB fits into the first 128 KB). So, we are only left with the big 128KB sectors for the application data. {\sbf Their erasure takes a significant amount of time} (seconds). Also, the total possible number of erasures is limited ({\sbf flash memory wear}). Thus, it is not possible to naively rewrite the whole sector when only a few bytes need to be changed (for example, when the global signature counter needs to be incremented).
-
-There are special file systems designed to allow efficient use of such memories. However, for our use case, {\sbf we implemented a simple custom solution, adapted from the Solo 1 project} (where they faced the same challenge, but their MCU’s sectors were only 1 KB big which still allowed for relatively fast erasures).
-
-The implemented algorithms are conceptually types of {\sbf simple wear-leveling algorithms}. With our solution, the need for erasures is greatly reduced. Most of the time, all the changes in the authenticator state can be done without any erasure at all (so it takes no extra time).
-
-Here are the relevant parts of the code that implement the persistence:
-
-\begitems
-
-* flash memory utils in \ulink[]{Inc/flash.h} and \ulink[]{Src/flash.c}
-
-* \ulink[]{Inc/memory_layout.h} that defines the used sector numbers
-
-* \ulink[]{ensure_flash_initialized()} in Src/app.c for initialization of the memory layout upon the very first startup and after memory reset (using the app_delete_data debug command)
-
-* persistence of the \ulink[]{AuthenticatorState} struct (contains the master key + PIN data)
-
-\begitems
-* \ulink[]{authenticator_read_state()}
-* \ulink[]{authenticator_write_state()}
-\enditems
-
-* persistence of the global \ulink[]{signature counter}
-
-\begitems
-
-* \ulink[]{ctap_atomic_count()} in Src/device.c
-
-* Note: A special effort has been made to make the counter atomic. In case the flash write is interrupted (e.g., the authenticator is disconnected from the USB and the power is interrupted), the counter should keep its previous value. This is critical for the correct FIDO2 implementation because the counter must never be decremented.
-
-\enditems
-
-* persistence of the client-discoverable credentials (resident credentials, resident keys)
-
-\begitems \style X
-* \ulink[]{ctap_reset_rk()}
-* \ulink[]{ctap_rk_size()}
-* \ulink[]{ctap_store_rk()}
-* \ulink[]{ctap_delete_rk()}
-* \ulink[]{ctap_load_rk()}
-* \ulink[]{ctap_overwrite_rk()}
-
-This is the only part where the wear-leveling algorithm is not implemented yet.
-Fortunately, it has only a negligible impact, since the ctap_overwrite_rk is only called once when a new client-discoverable credential is being created. This is in contrast with ctap_atomic_count() and authenticator_read_state() that can be invoked even multiple times during a single transaction.
-
-\enditems
-
-\enditems
-
-
-
-
-
+As of writing this thesis, the state persistence is the last remaining piece of functionality that is still a work in progress.
