@@ -28,7 +28,7 @@ The complete source code and additional documentation is available on GitHub:\nl
 
 \sec Decisions
 
-We decided to write our implementation in {\sbf C}, which is a very popular language for embedded development. It allows easy access to the underlying hardware (peripheral registers). We did consider using a more high-level such as Rust, but we wanted to focus primarily on the CTAP2 standard implementation, rather than learning a new language. Moreover, there is already a high-quality CTAP2 implementation in Rust within the \ilink[ref:opensk]{OpenSK} project.
+We decided to write our implementation in {\sbf C}, which is a very popular language for embedded development. It allows easy access to the underlying hardware (peripheral registers). We did consider using a more high-level language such as Rust, but we wanted to focus primarily on the CTAP2 standard implementation, rather than learning a new language. Moreover, there is already a high-quality CTAP2 implementation in Rust within the \ilink[ref:opensk]{OpenSK} project.
 
 In our implementation, we avoided the use of dynamic memory allocations. All memory is allocated statically or on the stack. We also avoided the use of global variables. All functions only modify the state that they are given. For some parts of the implementation, we also adopted object-oriented techniques to improve testability and enable more flexibility.
 
