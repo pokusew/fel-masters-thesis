@@ -2,7 +2,7 @@
 
 \sec LionKey
 
-To support adoption of our implementation by people from all over the world, we gave our implementation a name – LionKey – and we designed a logo. We also purchased the domain "lionkey.dev" (and "lion-key.dev", "lionkey.cz", "lion-key.cz") with the aim to launch a website with more detailed documentation.
+To support adoption of our implementation by people from all over the world, we gave our implementation a~name – LionKey – and we designed a~logo. We also purchased the domain "lionkey.dev" (and "lion-key.dev", "lionkey.cz", "lion-key.cz") with the aim to launch a~website with more detailed documentation.
 
 \midinsert
 \clabel[img_lionkey]{LionKey Logo}
@@ -13,7 +13,7 @@ To support adoption of our implementation by people from all over the world, we 
 
 \sec Key Features of LionKey
 
-In terms of WebAuthn, LionKey is a roaming authenticator with cross-platform attachment using CTAP 2.1 over USB 2.0 (CTAPHID) as the communication protocol, supporting user verification using PIN (CTAP2 ClientPIN), and capable of storing passkeys (client-side discoverable credentials).
+In terms of WebAuthn, LionKey is a~roaming authenticator with cross-platform attachment using CTAP 2.1 over USB 2.0 (CTAPHID) as the communication protocol, supporting user verification using PIN (CTAP2 ClientPIN), and capable of storing passkeys (client-side discoverable credentials).
 
 \begitems
 
@@ -24,8 +24,8 @@ In terms of WebAuthn, LionKey is a roaming authenticator with cross-platform att
 * Written in {\sbf C}.
 * No dynamic memory allocations.
 * Designed for use in resource-constrained environments.
-* MCU independent, easily portable, can be used as a library (see the core dir).
-* {\sbf Just a single external dependency} (TinyCBOR).
+* MCU independent, easily portable, can be used as a~library (see the core dir).
+* {\sbf Just a~single external dependency} (TinyCBOR).
 
 \enditems
 
@@ -44,17 +44,47 @@ In terms of WebAuthn, LionKey is a roaming authenticator with cross-platform att
 
 \sec FIDO Conformance Tools
 
-The FIDO Alliance provides a testing tool to verify the conformance of a CTAP2 implementation. This tool is not public and it is only provided upon request. Upon our request, we were granted the access. This allowed us to further verify our implementation. Apart from 4 unfinished little details, our implementation is fully with CTAP 2.1. Once we fix those 4 failing test, we can apply for a FIDO Certification L1 Level.
-
-We would like to also mention, that we implemented a test automation server (in the "tools" dir of the repository), which allows an automated conformance testing using the FIDO Conformance Tools app.
+The FIDO Alliance provides a~testing tool to verify the conformance of a~CTAP2 implementation. This tool is not public and it is only provided upon request. Upon our request, we were granted the access. This allowed us to further verify our implementation. As can be seen in Figure~\ref[img_lionkey_conformance], our implementation, {\sbf LionKey}, {\sbf successfully passed all tests}, thus demonstrating {\sbf full compliance with CTAP 2.1}. With these successful test results, we could apply for the FIDO Authenticator Level 1 (L1) certification\fnote{More infromation about the FIDO certification process can be found at \url{https://fidoalliance.org/certification/functional-certification/} and \url{https://fidoalliance.org/certification/authenticator-certification-levels/}}.
 
 \midinsert
 \clabel[img_lionkey_conformance]{LionKey FIDO Conformance Tools Results}
-\picw=144mm \cinspic ../images/fido-conformance-Screenshot-2025-05-20-at-1.41.16.png
-\caption/f The screenshot of the FIDO Conformance Tools v1.7.25 application after finishing the complete CTAP 2.1 test suite. The total duration was a little over 11 minutes. Only 5 test cases failed out of the total 166. Out of that, 4 test cases are related to the incomplete hmac-secret implementation, while 1 test case seems to be a possible regression in the testing tool itself, which we plan to investigate.
+\picw=144mm \cinspic ../images/fido-conformance-Screenshot-2025-05-26-at-4.01.53.png
+\caption/f The screenshot of the FIDO Conformance Tools v1.7.25.2 application after completing the full CTAP 2.1 test suite while testing LionKey. The total duration was a~little over 10 minutes. All 164 tests passed. Our implementation is fully compliant with CTAP 2.1.
 \endinsert
 
-\secc authenticatorGetInfo Snapshot
+\secc Automation
+
+The FIDO Conformance Tools is a~desktop application (built using Electron.js and Node.js). In addition to testing FIDO CTAP 2.1 and CTAP 2.0 authenticators, it also supports testing of implementations of FIDO UF2 and FIDO UAF. Until recently, the application did not support any form of test automation. During testing, it was necessary to manually perform user presence checks each time the testing tool requested it (e.g., press a~button on the authenticator and then confirm a~dialog in the app). Additionally, the authenticator needed to be manually reconnected to allow the "authenticatorReset" command, as CTAP2 authenticators {\em without display} can only be reset within the first 10 seconds after powering on.\fnote{This measure is included in the spec to prevent accidental/malicious triggering of the reset, because when the authenticator does not have a~display, the user cannot know what action they are actually confirming (via the user presence check).}
+
+Starting with the version v1.7.25, the FIDO Conformance Tools app provides an option to enable test automation. When enabled, this feature minimizes user interaction and reduces manual input when running the tests. Instead of relying on pop-up dialogs and manual user interaction, the app sends HTTP POST requests to trigger the appropriate action (authenticator power cycle, user presence test, etc.). “The idea is that these actions will be handled by an additional peripheral device instead of human action.”~\cite[fido2_conformance_tools_automation].
+
+Therefore, to streamline the testing, we have developed a~simple Node.js test automation server that implements the FIDO Conformance Tools Automation API. This server connects to the authenticator via the serial port and utilizes our \ilink[ref:uart]{UART Debugging Interface} to send the appropriate commands to the authenticator whenever it receives an automation HTTP POST request. Additionally, it forwards all standard input and output to and from the serial port, allowing it to function as a~serial console. The automation server script can be found in the "tools" directory of our repository.\urlnote{https://github.com/pokusew/lionkey}
+
+\midinsert
+\clabel[img_lionkey_conformance_automation]{Automation Server for FIDO Conformance Tools}
+\picw=146mm \cinspic ../images/fido-conformance-Screenshot-2025-05-26-at-3.59.46.png
+\caption/f The screenshot of the FIDO Conformance Tools v1.7.25.2 application with the output of our test automation server on the left side.
+\endinsert
+
+
+\secc Authenticator Metadata Statement
+
+A FIDO Authenticator Metadata statement is a JSON document that contains information
+(characteristics and capabilities) about a specific FIDO authenticator.~\cite[spec_fido_metadata_statements]
+
+The FIDO Alliance operates the FIDO Metadata Service, which provides a method for relying parties
+to obtain FIDO Metadata statements in a way that provides a chain of trust and makes it possible
+to validate attestation signatures generated by a particular authenticator.
+Relying parties can use the authenticator metadata to make policy decisions about authenticators.~\cite[spec_fido_metadata_service]
+
+The authenticator metadata statement is also required by the FIDO Conformance Tools testing app
+when performing the authenticator tests (CTAP 2.1 or CTAP 2.0).
+
+The LionKey Authenticator Metadata Statement can be found in the "tools" directory of our repository.\urlnote{https://github.com/pokusew/lionkey}
+
+One part of the metadata statement is also a snapshot of the response to the "authenticatorGetInfo" CTAP2 command.
+
+Below, we provide the "authenticatorGetInfo" response of LionKey when it is in its initial (factory) state. Note that response is dynamic and it changes based on the current authenticator's state. For example, the {\tt clientPin: false} part indicates the PIN is currently not set. Once the PIN is set, it will change to {\tt clientPin: true}. The absence of the "clientPin" option would indicate that the CTAP2 ClientPIN feature is not supported.
 
 \begtt
 {
@@ -94,7 +124,8 @@ We would like to also mention, that we implemented a test automation server (in 
 
 \sec Use on Real WebAuthn-enabled Websites
 
-We tested our security key with real WebAuthn-enabled websites. In all cases it worked flawlessly. In particular, we verified that it can be used for authentication on Google and GitHub. This confirms the quality of our implementation.
+We tested our security key with real WebAuthn-enabled websites. In all cases it worked flawlessly. In particular, we verified that it can be used for authentication on {\sbf Google} and {\sbf GitHub}. This further confirms the correctness of our implementation.
+
 
 \secc CTU FEE
 
@@ -103,12 +134,12 @@ At CTU FEE, WebAuthn (passkeys) authentication has been recently implemented. Of
 \midinsert
 \clabel[img_ctu_fee_flow_reg]{LionKey WebAuthn Registration on auth.fel.cvut.cz}
 \picw=144mm \cinspic ../images/fel-flow-reg.png
-\caption/f The full WebAuthn flow of a creating a new passkey with LionKey on auth.fel.cvut.cz.
+\caption/f The full WebAuthn flow of a~creating a~new passkey with LionKey on auth.fel.cvut.cz. 1. (top left image) Adding a new passkey. 2. (top right image) User verification (LionKey supports only PIN) is required for passkeys (aka client-side discoverable credentials). 3. (bottom left) User presence check – The user consents to the action of creating a new credential. 4. (bottom right) The UI of the auth.fel.cvut.cz website confirms that the passkey was successfully registered.
 \endinsert
 
 
 \midinsert
 \clabel[img_ctu_fee_flow_auth]{LionKey WebAuthn Authentication on auth.fel.cvut.cz}
 \picw=144mm \cinspic ../images/fel-flow-auth.png
-\caption/f The full WebAuthn flow of a using LionKey with passkeys for authentication on auth.fel.cvut.cz.
+\caption/f The full WebAuthn flow of a~using LionKey with passkeys for authentication on auth.fel.cvut.cz.
 \endinsert

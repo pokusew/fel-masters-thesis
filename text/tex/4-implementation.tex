@@ -137,9 +137,9 @@ In order to enable testability without the need for special hardware, we first i
 Then, we implemented the same set of functions (again using OOP) using the STM32H533 cryptography peripherals RNG, PKA, SHA, AES. The ability to compare the results between the software- and hardware-based implementation were crucial to debug various tricky issues.
 
 
-\sec Debugging Interface via UART
+\sec[uart] Debugging Interface via UART
 
-In order to allow easy debugging (and development of the USB communication stack), we implemented a simple bidirectional debugging interface using the UART peripheral. We wrote a simple write syscall implementation so that the printf statements (wrapped in custom "debug"/"info"/"error\_log" macros) could work as expected. The handling of the incoming debug commands is done in the app main loop here.
+In order to allow easy debugging (and development of the USB communication stack), we implemented a simple bidirectional debugging interface using the UART peripheral. We wrote a simple write syscall implementation so that the printf statements (wrapped in custom "debug/info/error_log" macros) could work as expected. The handling of the incoming debug commands is done in the "app_debug_task()" function.
 
 
 \secc Persistent Storage
