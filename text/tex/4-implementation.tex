@@ -78,7 +78,7 @@ After thoroughly reviewing the available hardware options, we identified two can
 
 We did not like the quality of the documentation and supporting software libraries compared to STMicroelectronics products, so {\sbf we decided to focus our efforts on our second choice, the STM32H533 MCU on the NUCLEO-H533RE (15.95 USD) development board instead}.
 
-STM32H533 features an Arm Cortex-M33 CPU (ARMv8-M architecture) with TrustZone, FPU, frequency up to 250 MHz, 512 KB of embedded flash memory with ECC, two banks read-while-write, 48-KB per bank with high-cycling capability (100 K cycles) for data flash, 272 Kbytes of SRAM (80-KB SRAM2 with ECC), USB 2.0 FS and hardware-cryptography peripherals (PKA (Public Key Accelerator) with support for ECC P-256, AES, HASH, RNG). Those specs are a good fit for our use case.
+STM32H533 features an Arm Cortex-M33 CPU (ARMv8-M architecture) with TrustZone, FPU, frequency up to 250 MHz, 512 KB of embedded flash memory with ECC, two banks read-while-write, 48-KB per bank with high-cycling capability (100 K cycles) for data flash, 272 KB of SRAM (80-KB SRAM2 with ECC), USB 2.0 FS and hardware-cryptography peripherals (PKA (Public Key Accelerator) with support for ECC P-256, AES, HASH, RNG). Those specs are a great fit for our use case.
 
 \midinsert
 \clabel[img_nrf52840]{nRF52840 Dongle}
@@ -97,16 +97,16 @@ STM32H533 features an Arm Cortex-M33 CPU (ARMv8-M architecture) with TrustZone, 
 
 The USB HID and USB layers are implemented using the TinyUSB library, which support the STM32H533's USB peripheral.
 
-There are two endpoints (IN, OUT) with interrupt transfer (64-byte packet max, poll every 5 millisecond). The descriptors (device, config, interface, endpoints, HID report) are set up according to the CTAPHID specification (11.2.8. HID device implementation).
+There are two endpoints (IN, OUT) with interrupt transfer (64-byte packet max, poll every 5 millisecond). The descriptors (device, config, interface, endpoints, HID report) are set up according to the CTAPHID specification (11.2.8. HID device implementation)~\cite[spec_ctap_2_1].
 
 \midinsert
 \clabel[img_lionkey_usb]{LionKey in macOS USB Device Tree Explorer}
 \picw=120mm \cinspic ../images/usb-Screenshot-2025-05-19-at-0.41.52.png
 \caption/f The following screenshot shows our authenticator in the USB Device Tree Explorer in System Information on macOS 11.
 
-The chosen Vendor ID (VID) and Product ID (VID) come from the pid.codes project.
-pid.codes is a registry of USB PID codes for open source hardware projects. They assign PIDs on any VID they own to any open-source hardware project needing one.
-For the initial version of this thesis, we used their testing VID/PID 0x1209/0x0001. In the future, we might eventually ask for our own PID.
+The chosen Vendor ID (VID) and Product ID (VID) come from the \ulink[https://pid.codes/]{pid.codes} project.
+pid.codes is a registry of USB PID codes for open source hardware projects. They assign PIDs on any VID they own to any open-source hardware project needing one~\cite[pid_codes].
+For the initial version of this thesis, we used their testing VID/PID "0x1209/0x0001". In the future, we might eventually ask for our own PID.
 
 \endinsert
 
@@ -132,29 +132,46 @@ Our CTAP2 implementation requires an implementation of ECDSA and ECDH on the P-2
 
 We developed custom generic implementations of HMAC and HKDF from scratch. They can work with any underlying hash algorithm implementation (ether software-based or hardware-based).
 
-In order to enable testability without the need for special hardware, we first implemented Random Number Generation (allowing custom seed testing predictability), ECC, AES, and SHA-256 using software third-party software libraries optimized for use in embedded devices but compatible with standard processor architectures as well. This way we got a baseline that ran on both the host and the target hardware.
+In order to enable testability without the need for special hardware, we first implemented Random Number Generation (allowing custom seed for testing predictability), ECC (ECDSA and ECDH), AES, and SHA-256 using third-party software libraries optimized for use in embedded devices but compatible with standard processor architectures as well. This way we got a baseline that ran on both the host and the target hardware.
 
-Then, we implemented the same set of functions (again using OOP) using the STM32H533 cryptography peripherals RNG, PKA, SHA, AES. The ability to compare the results between the software- and hardware-based implementation were crucial to debug various tricky issues.
+Then, we implemented the same set of functions (again using OOP) using the STM32H533 cryptography peripherals RNG, PKA (Public Key Accelerator), SHA, AES. The ability to compare the results between the software- and hardware-based implementation were crucial to debug various tricky issues.
 
 
 \sec[uart] Debugging Interface via UART
 
 In order to allow easy debugging (and development of the USB communication stack), we implemented a simple bidirectional debugging interface using the UART peripheral. We wrote a simple write syscall implementation so that the printf statements (wrapped in custom "debug/info/error_log" macros) could work as expected. The handling of the incoming debug commands is done in the "app_debug_task()" function.
 
+\_vfil
 
-\secc Persistent Storage
+\sec[persistence] Persistent Storage
 
-There are multiple pieces of data that need to be persisted. Namely, it is:
+There are multiple pieces of data that need to be persisted. Namely, these are:
 
 \begitems
 
-* the master key (used for storing non-discoverable credentials),
+* Whether a PIN has been set. If yes, then also:
 
-* the PIN and its code point length (or the information that it is not has not been set yet) for user verification (UV) and invalid PIN attempts counter (note that the PIN is not stored in plaintext, instead only a hash stored),
+\begitems
 
-* the global signature counter,
+* Its hash (resp. the first 16 bytes of the 32-byte SHA256 hash) and its length (in Unicode code points).
 
-* and client-side discoverable credentials (passkeys).
+* The remaining PIN attempts counter, which is initialized to 8. It decreases with each incorrect PIN entry, but it resets back to 8 after the correct PIN is entered. After 3 consecutive incorrect entries (failed attempts), a power cycle (authenticator reboot/reconnect) is required by the spec. This is done so that malicious applications running on the platform cannot block the device without user interaction~\cite[spec_ctap_2_1]. It is necessary because the authenticatorClientPIN subcommands used to enter the PIN can be invoked by applications without any user interaction (user presence check).
+
+\enditems
+
+* The current minimum PIN length (in Unicode code points). We store this so that we easily add support for the optional "setMinPINLength" subCommand of the "authenticatorConfig" command and the Minimum PIN Length Extension (minPinLength) in the future).
+
+* Credentials
+
+\begitems
+
+* It is absolutely necessary to store all client-side discoverable credentials (passkeys).
+
+* But the non-discoverable credentials do not need to be stored. Instead, we could generate (random) and store a single symmetric encryption key and use it to encrypt (wrap) the private keys of non-discoverable credentials as we described in the \ilink[ref:credential_storage_modality]{Credential Storage Modality} section.
+
+* However, in our current implementation, we store all credentials.
+
+\enditems
 
 \enditems
 
