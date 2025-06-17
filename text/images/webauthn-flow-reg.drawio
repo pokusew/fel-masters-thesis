@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.0.8">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="27.0.8">
   <diagram name="Page-1" id="gtEx4x2OVCmOV5k88S3V">
-    <mxGraphModel dx="751" dy="426" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2920" pageHeight="1200" math="0" shadow="0">
+    <mxGraphModel dx="539" dy="283" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2920" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -52,7 +52,7 @@
         <mxCell id="qSNYdpLK8OEsZtSAGU9_-20" value="5" style="ellipse;whiteSpace=wrap;html=1;fillColor=default;strokeColor=#3399FF;strokeWidth=2;fontColor=#3399FF;fontSize=11;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="720" y="230" width="20" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="qSNYdpLK8OEsZtSAGU9_-21" value="&lt;font&gt;1&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=default;strokeColor=#3399FF;strokeWidth=2;fontColor=#3399FF;fontSize=11;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
+        <mxCell id="qSNYdpLK8OEsZtSAGU9_-21" value="&lt;font&gt;6&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=default;strokeColor=#3399FF;strokeWidth=2;fontColor=#3399FF;fontSize=11;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="790" y="170" width="20" height="20" as="geometry" />
         </mxCell>
         <mxCell id="qSNYdpLK8OEsZtSAGU9_-22" value="3" style="ellipse;whiteSpace=wrap;html=1;fillColor=default;strokeColor=#3399FF;strokeWidth=2;fontColor=#3399FF;fontSize=11;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
@@ -67,7 +67,7 @@
         <mxCell id="qSNYdpLK8OEsZtSAGU9_-25" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;authenticatorData,,&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 10px;&quot;&gt;credential ID,&lt;br&gt;credential public key,&lt;br&gt;attestation&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="740" y="385" width="110" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="qSNYdpLK8OEsZtSAGU9_-26" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;user verification,&lt;br&gt;generate new crednetial (private key, public key),&lt;br&gt;create attestation&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="qSNYdpLK8OEsZtSAGU9_-26" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;user verification,&lt;br&gt;generate new credential (private key, public key),&lt;br&gt;create attestation&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="532.5" y="500" width="255" height="30" as="geometry" />
         </mxCell>
         <mxCell id="qSNYdpLK8OEsZtSAGU9_-27" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;challenge,&lt;br&gt;user info, RP info,&lt;br&gt;(exclude list)&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
@@ -85,7 +85,7 @@
         <mxCell id="qSNYdpLK8OEsZtSAGU9_-31" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;AuthenticatorAttestationResponse&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#3399FF;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="770" y="200" width="70" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="cNFmix95sk26hO_sunyE-2" value="WebAuthn API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#B85450;fontStyle=1;fontSize=9;" vertex="1" parent="1">
+        <mxCell id="cNFmix95sk26hO_sunyE-2" value="WebAuthn API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#B85450;fontStyle=1;fontSize=9;" parent="1" vertex="1">
           <mxGeometry x="480" y="310" width="70" height="20" as="geometry" />
         </mxCell>
       </root>
