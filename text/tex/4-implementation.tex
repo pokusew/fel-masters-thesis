@@ -11,13 +11,13 @@ The complete source code and additional documentation is available on GitHub:\nl
 
 \begitems
 
-* self-contained implementation, with {\sbf a minimum number of dependencies}
+* self-contained implementation, with {\sbf a~minimum number of dependencies}
 
 * understandable, clear implementation of the standard
 
 * hardware-independent core, making the whole project easily portable
 
-* OS-independent, capable of running as a bare-metal application on the MCU
+* OS-independent, capable of running as a~bare-metal application on the MCU
 
 * testable
 
@@ -28,7 +28,7 @@ The complete source code and additional documentation is available on GitHub:\nl
 
 \sec Decisions
 
-We decided to write our implementation in {\sbf C}, which is a very popular language for embedded development. It allows easy access to the underlying hardware (peripheral registers). We did consider using a more high-level language such as Rust, but we wanted to focus primarily on the CTAP2 standard implementation, rather than learning a new language. Moreover, there is already a high-quality CTAP2 implementation in Rust within the \ilink[ref:opensk]{OpenSK} project.
+We decided to write our implementation in {\sbf C}, which is a~very popular language for embedded development. It allows easy access to the underlying hardware (peripheral registers). We did consider using a~more high-level language such as Rust, but we wanted to focus primarily on the CTAP2 standard implementation, rather than learning a~new language. Moreover, there is already a~high-quality CTAP2 implementation in Rust within the \ilink[ref:opensk]{OpenSK} project.
 
 In our implementation, we avoided the use of dynamic memory allocations. All memory is allocated statically or on the stack. We also avoided the use of global variables. All functions only modify the state that they are given. For some parts of the implementation, we also adopted object-oriented techniques to improve testability and enable more flexibility.
 
@@ -46,7 +46,7 @@ Additionally, we relied on the static checks (Clang-Tidy and CLion's advanced st
 \midinsert
 \clabel[img_ci_cd]{CI/CD Setup}
 \picw=144mm \cinspic ../images/ci-cd-Screenshot-2025-05-23-at-17.57.46.png
-\caption/f A recent run of our CI/CD pipeline in GitHub Actions.
+\caption/f A~recent run of our CI/CD pipeline in GitHub Actions.
 \endinsert
 
 \midinsert
@@ -57,7 +57,7 @@ Additionally, we relied on the static checks (Clang-Tidy and CLion's advanced st
 
 \sec Choosing Hardware
 
-We sought a hardware platform that would meet the needs of our implementation while being accessible and usable by the builder community worldwide. Therefore, we established the following criteria:
+We sought a~hardware platform that would meet the needs of our implementation while being accessible and usable by the builder community worldwide. Therefore, we established the following criteria:
 
 \begitems
 * Available and affordable development kits (boards) with integrated hardware debugger and programmer.
@@ -67,18 +67,18 @@ We sought a hardware platform that would meet the needs of our implementation wh
 * Single-core 32-bit MCU, such as the Arm Cortex-M line.
 * Reasonable amount of RAM and flash memory.
 * Hardware-accelerated cryptography (at least ECC on the P-256 curve, AES, SHA-256, True Random Number Generator).
-* Nice-to-have: A form factor close to the physical dimensions of a security key.
+* Nice-to-have: A~form factor close to the physical dimensions of a~security key.
 \enditems
 
 We also came across an interesting presentation from Victor Lomne (NinjaLab) about the hardware used in commercial FIDO(2) security keys~\cite[ninjalab_fido_hw_overview]. For example, Yubico uses NXP and Infineon microcontrollers in its products.
 
 After thoroughly reviewing the available hardware options, we identified two candidates: Nordic Semiconductor nRF52840 and STM32H533.
 
-\ilink[ref:opensk]{OpenSK}, the open-source implementation for security keys written in Rust, has chosen Nordic Semiconductor nRF52840 as its reference hardware target. nRF52840 is a SoC with a 64 MHz Cortex-M4 CPU (ARMv7-M architecture) with FPU, 1 MB Flash, 256 KB RAM, multiprotocol radio support (including Bluetooth), USB 2.0, NFC-A, and Arm TrustZone CryptoCell 310 security subsystem. There are two development boards available: nRF52840 DK (48.10 USD) and nRF52840 Dongle (10.40 USD). The nRF52840 Dongle immediately caught our attention because its form factor almost perfectly corresponds to a standard Yubico-like security key. Thus, we bought samples and evaluated them.
+\ilink[ref:opensk]{OpenSK}, the open-source implementation for security keys written in Rust, has chosen Nordic Semiconductor nRF52840 as its reference hardware target. nRF52840 is a~SoC with a~64 MHz Cortex-M4 CPU (ARMv7-M architecture) with FPU, 1 MB Flash, 256 KB RAM, multiprotocol radio support (including Bluetooth), USB 2.0, NFC-A, and Arm TrustZone CryptoCell 310 security subsystem. There are two development boards available: nRF52840 DK (48.10 USD) and nRF52840 Dongle (10.40 USD). The nRF52840 Dongle immediately caught our attention because its form factor almost perfectly corresponds to a~standard Yubico-like security key. Thus, we bought samples and evaluated them.
 
 We did not like the quality of the documentation and supporting software libraries compared to STMicroelectronics products, so {\sbf we decided to focus our efforts on our second choice, the STM32H533 MCU on the NUCLEO-H533RE (15.95 USD) development board instead}.
 
-STM32H533 features an Arm Cortex-M33 CPU (ARMv8-M architecture) with TrustZone, FPU, frequency up to 250 MHz, 512 KB of embedded flash memory with ECC, two banks read-while-write, 48-KB per bank with high-cycling capability (100 K cycles) for data flash, 272 KB of SRAM (80-KB SRAM2 with ECC), USB 2.0 FS and hardware-cryptography peripherals (PKA (Public Key Accelerator) with support for ECC P-256, AES, HASH, RNG)~\cite[stm32_ds14539]. Those specs are a great fit for our use case.
+STM32H533 features an Arm Cortex-M33 CPU (ARMv8-M architecture) with TrustZone, FPU, frequency up to 250 MHz, 512 KB of embedded flash memory with ECC, two banks read-while-write, 48-KB per bank with high-cycling capability (100 K cycles) for data flash, 272 KB of SRAM (80-KB SRAM2 with ECC), USB 2.0 FS and hardware-cryptography peripherals (PKA (Public Key Accelerator) with support for ECC P-256, AES, HASH, RNG)~\cite[stm32_ds14539]. Those specs are a~great fit for our use case.
 
 \midinsert
 \clabel[img_nrf52840]{nRF52840 Dongle}
@@ -105,7 +105,7 @@ There are two endpoints (IN, OUT) with interrupt transfer (64-byte packet max, p
 \caption/f Our authenticator (LionKey) shown in the USB Device Tree Explorer in System Information on macOS 11.
 
 The chosen Vendor ID (VID) and Product ID (VID) come from the \ulink[https://pid.codes/]{pid.codes} project.
-pid.codes is a registry of USB PID codes for open source hardware projects. They assign PIDs on any VID they own to any open-source hardware project needing one~\cite[pid_codes].
+pid.codes is a~registry of USB PID codes for open source hardware projects. They assign PIDs on any VID they own to any open-source hardware project needing one~\cite[pid_codes].
 For the initial version of this thesis, we used their testing VID/PID "0x1209/0x0001". In the future, we might eventually ask for our own PID.
 
 \endinsert
@@ -118,7 +118,7 @@ We use TinyCBOR\urlnote{https://github.com/intel/tinycbor} for parsing (decoding
 
 \sec Arbitrary-length Strings
 
-One challenging aspect of a CTAP2 implementation is the need to support strings of arbitrary length. We implemented an efficient zero-copy solution based on the TinyCBOR's string chunks API. When the strings need to be truncated for storage, the credentials storage submodule takes care of that. When an RP ID gets truncated, we fall back to use its SHA-256 for comparisons.
+One challenging aspect of a~CTAP2 implementation is the need to support strings of arbitrary length. We implemented an efficient zero-copy solution based on the TinyCBOR's string chunks API. When the strings need to be truncated for storage, the credentials storage submodule takes care of that. When an RP ID gets truncated, we fall back to use its SHA-256 for comparisons.
 
 
 \sec PIN/UV Auth Protocol
