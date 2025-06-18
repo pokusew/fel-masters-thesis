@@ -17,7 +17,7 @@ In terms of WebAuthn, LionKey is a~roaming authenticator with cross-platform att
 
 \begitems
 
-* Fully compliant implementation of CTAP 2.1.
+* {\sbf Fully compliant implementation of CTAP 2.1.}
 
 \begitems
 * Implements all mandatory features.
@@ -25,17 +25,19 @@ In terms of WebAuthn, LionKey is a~roaming authenticator with cross-platform att
 * No dynamic memory allocations.
 * Designed for use in resource-constrained environments.
 * MCU independent, easily portable, can be used as a~library (see the core dir).
-* {\sbf Just a~single external dependency} (TinyCBOR).
+* Uses TinyCBOR library for CBOR parsing and encoding.
 
 \enditems
 
 * Runs on the \ulink[https://www.st.com/en/evaluation-tools/nucleo-h533re.html]{NUCLEO-H533RE} board with the \ulink[https://www.st.com/en/microcontrollers-microprocessors/stm32h533re.html]{STM32H533RET6} MCU.
 
-* Uses STM32CubeH5 (HAL, LL) via STM32CubeMX generator.
+\begitems
+* Uses TinyUSB library for the USB and USB HID implementation.
+* Hardware-accelerated cryptography using the RNG, PKA, AES, SHA peripherals.
+* Uses STM32CubeH5 (CMSIS, HAL, LL).
+\enditems
 
-* Hardware-accelerated cryptography on STM32H533 (using the RNG, PKA, AES, SHA peripherals).
-
-* Uses TinyUSB for the USB and USB HID implementation.
+* {\sbf Minimum number of external dependencies}: TinyCBOR, TinyUSB, STM32CubeH5.
 
 * The complete source code and additional documentation is available on GitHub:\nl
 \url{https://github.com/pokusew/lionkey}
