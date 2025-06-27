@@ -6,6 +6,7 @@ My Master's Thesis at [CTU FEE] ([ČVUT FEL])
 
 📦 The source code of the implementation: 👉 **[pokusew/lionkey]**
 
+🖼️ [Thesis Defense Presentation]
 
 The TeX source of the thesis, including build script
 can be found in the [text](./text) directory.  
@@ -18,6 +19,8 @@ can be found in the [formalities](./formalities) directory.
 [pokusew/lionkey]: https://github.com/pokusew/lionkey
 
 [FIDO2_USB_Security_Key.pdf]: https://github.com/pokusew/fel-masters-thesis/raw/main/text/FIDO2_USB_Security_Key.pdf
+
+[Thesis Defense Presentation]: https://docs.google.com/presentation/d/12pIpleXDWQAHsmKjXbUiqhyiZhqAIqI8Lhsf10e0ypE/edit?usp=sharing
 
 [CTU FEE]: https://fel.cvut.cz/en/
 
